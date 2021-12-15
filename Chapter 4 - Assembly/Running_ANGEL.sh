@@ -13,6 +13,7 @@
 numpy
 Biopython
 scikit-learn
+CD-HIT version 4.8.1
 conda install -n anaCogent scikit-learn
 
 

@@ -7,7 +7,7 @@
 
         <meta name="author" content="Carmel M" />
     
-        <meta name="date" content="2021-12-16" />
+        <meta name="date" content="2021-12-19" />
     
     <title>Gene expression and transcript annotation in Tiliqua adelaidensis kidney tissue</title>
 
@@ -1687,20 +1687,30 @@ src: url(data:application/x-font-truetype;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjw
     <div id="toc">
       <ul>
       <li><a href="#analysis-workflow">Analysis Workflow</a></li>
-      <li><a href="#chapter-4---assembly">Chapter 4 - Assembly</a><ul>
-      <li><a href="#long-read-data">Long read data</a></li>
-      <li><a href="#short-read-data">Short Read data</a></li>
-      <li><a href="#summary-quantification">Summary / Quantification</a></li>
-      </ul></li>
-      <li><a href="#chapter-5---annotation">Chapter 5 - Annotation</a><ul>
-      <li><a href="#blastx">BLASTx</a></li>
+      <li><a href="#assembly-chapter-4">Assembly (Chapter 4)</a><ul>
+      <li><a href="#long-read-data"><ins><strong><em>Long read data</em></strong></ins></a></li>
+      <li><a href="#smrt-tools---isoseq3">SMRT Tools - IsoSeq3</a></li>
+      <li><a href="#cogent">Cogent</a></li>
+      <li><a href="#angel">ANGEL</a></li>
       <li><a href="#cd-hit">CD-HIT</a></li>
       <li><a href="#reading-cd-hit-output-in-r">Reading CD-HIT output in R</a></li>
       <li><a href="#seqtk">Seqtk</a></li>
       <li><a href="#subsetting-full-length-transcripts-which-represent-each-cluster">Subsetting full length transcripts which represent each cluster</a></li>
+      <li><a href="#short-read-data"><ins><strong><em>Short Read data</em></strong></ins></a></li>
+      <li><a href="#fastqc-quality-assessment">FASTQC quality assessment</a></li>
+      <li><a href="#bbduk-adapter-trimming">BBduk adapter trimming</a></li>
+      <li><a href="#fastqc-quality-assessment-1">FASTQC quality assessment</a></li>
+      <li><a href="#de-novo-assembly-with-trinity">De-novo assembly with TRINITY</a></li>
+      <li><a href="#summary-quantification"><ins><strong><em>Summary / Quantification</em></strong></ins></a></li>
+      <li><a href="#long-read-sequences-data-summary">Long read sequences data summary</a></li>
+      <li><a href="#short-read-sequences-data-summary">Short read sequences data summary</a></li>
+      <li><a href="#busco">BUSCO</a></li>
+      </ul></li>
+      <li><a href="#annotation-chapter-5">Annotation (Chapter 5)</a><ul>
+      <li><a href="#blastx">BLASTx</a></li>
       <li><a href="#summary">Summary</a></li>
       </ul></li>
-      <li><a href="#chapter-6---gene-expression-analysis">Chapter 6 - Gene expression analysis</a><ul>
+      <li><a href="#gene-expression-analysis-chapter-6">Gene expression analysis (Chapter 6)</a><ul>
       <li><a href="#kallisto">Kallisto</a></li>
       <li><a href="#edger-expression-analysis">EdgeR Expression Analysis</a></li>
       </ul></li>
@@ -1708,7 +1718,7 @@ src: url(data:application/x-font-truetype;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjw
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Carmel M</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2021-12-16</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2021-12-19</p>
           </div>
    </div>
    
@@ -1764,9 +1774,9 @@ src: url(data:application/x-font-truetype;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjw
 </tbody>
 </table>
 <p>There are three main sections to this document, which are referenced in three separate chapters of the thesis:</p>
-<p><strong>Chapter 4:</strong> Assembly, cleaning and clustering of transcript isoforms from <strong>both</strong> sequencing formats to form a pseudo-reference for <em>T. adelaidensis</em> and compare methods.</p>
-<p><strong>Chapter 5:</strong> Annotation and further analysis of the full length transcript isoforms derived from the long read analysis.</p>
-<p><strong>Chapter 6:</strong> Gene expression analysis using the short read data aligned to the long read pseudo reference produced in Chapter 4, to assess seasonal variation of gene expression.</p>
+<p><strong>Assembly (Chapter 4):</strong> Assembly, cleaning and clustering of transcript isoforms from <strong>both</strong> sequencing formats to form a pseudo-reference for <em>T. adelaidensis</em> and compare methods.</p>
+<p><strong>Annotation (Chapter 5):</strong> Annotation and further analysis of the full length transcript isoforms derived from the long read analysis.</p>
+<p><strong>Gene expression (Chapter 6):</strong> Gene expression analysis using the short read data aligned to the long read pseudo reference produced in Chapter 4, to assess seasonal variation of gene expression.</p>
 <hr />
 <p>Analysis was done using a combination of computing and HPC machines with specifications as below:</p>
 <ul>
@@ -1779,18 +1789,19 @@ src: url(data:application/x-font-truetype;base64,AAEAAAARAQAABAAQR0RFRgs+Cz8AAjw
 All scripts and commands in this pipeline depend on specific directory structure, and may show inconsistencies in this structure between steps where files have been transferred between computing resources. The input and output files of note are highlighted in the text between steps to bridge these gaps.</p>
 <hr />
 </div>
-<div id="chapter-4---assembly" class="section level1">
-<h1>Chapter 4 - Assembly</h1>
+<div id="assembly-chapter-4" class="section level1">
+<h1>Assembly (Chapter 4)</h1>
 <p>A genome from a closely related species is unavailable for these data. Gene expression analysis of short read data was initially intended to be carried out using a <em>de-novo</em> assembly of this same data as a pseudo-reference for expression counts.<br />
 When long read data became available both datasets have been assembled <em>de-novo</em> and these assemblies compared. The long read assembly then provided the reference for expression counts in Chapter 6.</p>
 <p>This section is divided into the two methods of assembly; using the long read IsoSeq data, and using the short read HiSeq data. Both these sections contain titles referencing the main program in use at each step.</p>
 <hr />
 <div id="long-read-data" class="section level2">
-<h2>Long read data</h2>
+<h2><ins><strong><em>Long read data</em></strong></ins></h2>
 <p><em>De-novo</em> assembly of long-read IsoSeq data sequenced from poly-a selected RNA extracted from a single kidney from september male G6. These sequences were be used to annotate genes found in kidney tissue of T. adelaidensis and create a set of reference transcripts for gene expression analysis conducted in later chapters.</p>
 <p>Sequences downloaded from Pacific Biosciences &amp; checksumms verified.</p>
-<div id="smrt-tools---isoseq3" class="section level3">
-<h3>SMRT Tools - IsoSeq3</h3>
+</div>
+<div id="smrt-tools---isoseq3" class="section level2">
+<h2>SMRT Tools - IsoSeq3</h2>
 <p>SMRT Tools provides various programs for appropriate treatment of Pacific Biosciences sequencing outputs. IsoSeq3 was used to collapse circular sequences, initial polishing, and to characterise full length transcript reads. This analysis was conducted in an environment on the eRSA NECTAR research cloud.</p>
 <p>A primer reference file was created manually for reference in the Isoseq3 script using the primers listed in the Clontech SMARTer cDNA Library prep kit which was used during the synthesis of cDNA for these samples.</p>
 <p><a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/primers.fasta">primers.fasta</a>:</p>
@@ -1918,8 +1929,8 @@ When long read data became available both datasets have been assembled <em>de-no
 <p>All of the above output was moved into a folder ~/data/2019-04-30_isoseq3_out</p>
 <p>The output from this script, the polished.hq.fasta.gz file was unzipped and then used as the input for the program Cogent.</p>
 </div>
-<div id="cogent" class="section level3">
-<h3>Cogent</h3>
+<div id="cogent" class="section level2">
+<h2>Cogent</h2>
 <p>Transcript clustering and collapse of redundant isoforms. Line by line instructions for running Cogent for clustering of transcript isoforms in a screen on the NECTAR machine as below. Includes instructions for Cupcake and minimap to collapse redundant transcript isoforms.</p>
 <p>Some notes and commentary are based on notes and personal communication with Tessa Bradford &amp; Terry Bertozzi at the SA Museum, as well as the <a href="https://github.com/Magdoll/Cogent/wiki/Running-Cogent">Cogent GitHub Tutorial page</a></p>
 <p>Environments were used for installations (most often achieved with mini conda) on the NEXTAR machine. Activate screen, activate the environment, make Cogent output directory, and go to analysis working directory</p>
@@ -2160,8 +2171,8 @@ Each ‘locus’ consists of a strand-specific locus with isoforms that overlap 
 <p>The longest transcript for each set of isoforms is in hq.fasta.no5merge.collapsed.rep.fa. This file is used in the following step and also provides the full transcripts to be sub-set as a reference based on further clustering in Chapter 5.</p>
 </div>
 </div>
-<div id="angel" class="section level3">
-<h3>ANGEL</h3>
+<div id="angel" class="section level2">
+<h2>ANGEL</h2>
 <p><a href="https://github.com/PacificBiosciences/ANGEL">ANGEL</a>: Robust Open Reading Frame prediction</p>
 <p>Line by line instructions for running ANGEL in order to predict open reading frame and peptide sequences of transcript Isoforms. Also outputs 5’ and 3’ untranslated regions and scores transcript completeness.</p>
 <p>This analysis was tested on an environment on the eRSA NECTAR research cloud, final data run was completed by Terry Bertozzi on a Dell PowerEdge server with 40 cores and 512G RAM due to memory limitations of the NECTAR allocation.</p>
@@ -2214,469 +2225,6 @@ The proportion of each isoform that is untranslated, as well as the position of 
 <p>Note: The reverse strand options within ANGEL are not necessary on Isoseq data.</p>
 <p>All these commands are provided in the one document <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/Running_ANGEL.sh">Running_ANGEL.sh</a> on Github.</p>
 </div>
-</div>
-</div>
-<div id="short-read-data" class="section level2">
-<h2>Short Read data</h2>
-<p>De-novo assembly of short-read Transcripts:<br />
-Short read transcripts used for gene expression analysis in Chater 6 were initially intended for de-novo assembly and analysis due to a lack of closely related genomic references for T. adelaidensis.</p>
-<p>This section outlines the methods for assembly of short read datasets in the absence of a reference or genome for the purposes of comparing these final transcript datasets to the assembly generated from the long reads as above.</p>
-<p>Other notes: Initial plans for Chapter 6 did not include the availability of long-read sequencing to supplement a reference transcript list. Therefore a pooled transcript assembly was created by concatenating reads from all eight samples in order to use this larger dataset as a reference for the program <a href="https://github.com/Oshlack/Corset/wiki">Corset</a>.</p>
-<p>Sequences Downloaded from the Australian Genomics Research Facility server &amp; checksumms verified.<br />
-This analysis was conducted on the Flinders University ‘Deep Thought’ HPC.</p>
-<div id="fastqc-quality-assessment" class="section level3">
-<h3>FASTQC quality assessment</h3>
-<p>Quality of sequencing output was quantified using the following <a href>script</a></p>
-<p>The FastQC Reports were then combined for visualisation using <a href="https://bioconductor.org/packages/release/bioc/html/ngsReports.html">NGSReports</a> The output html file of all eight samples PRIOR to trimming is available <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/FastQC-8K_ngsReports_Fastqc-edit.html">here</a>.</p>
-</div>
-<div id="bbduk-adapter-trimming" class="section level3">
-<h3>BBduk adapter trimming</h3>
-<p>Trimming to remove Illumina TruSeq adapters and SMARTer PCR tags as well as trimming based on quality scores.</p>
-</div>
-<div id="fastqc-quality-assessment-1" class="section level3">
-<h3>FASTQC quality assessment</h3>
-<p>Quality of trimmed data was then assessed again using FastQC.<br />
-The output html file of all eight samples FastQC reports AFTER trimming is available <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/FastQC-clean_ngsReports_Fastqc---Copy.html">here</a>.</p>
-</div>
-<div id="de-novo-assembly-with-trinity" class="section level3">
-<h3>De-novo assembly with TRINITY</h3>
-<p><em>De-novo</em> assembly of transcripts.<br />
-Singleton reads (where a paired read was eliminated in quality trimming) were included for all TRINITY assembly runs. Assembly was run on each sample individually as well as on a pooled (concatenated) file of all reads.</p>
-<p><a href>trinity2019.sh</a></p>
-<p><a href>TrinityName.sh</a></p>
-</div>
-</div>
-<div id="summary-quantification" class="section level2">
-<h2>Summary / Quantification</h2>
-<div id="long-read-sequences-data-summary" class="section level3">
-<h3>Long read sequences data summary</h3>
-</div>
-<div id="short-read-sequences-data-summary" class="section level3">
-<h3>Short read sequences data summary</h3>
-<p>Total Transcript count of each TRINITY generated dataset was simply conducted using shell commands. Total transcript count for long read files are included in the BUSCO usage file below as headers required manipulation for input into BUSCO and totals were checked at this step.</p>
-<table>
-<colgroup>
-<col width="22%"></col>
-<col width="27%"></col>
-<col width="27%"></col>
-<col width="22%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="right"><strong>Sample ID</strong></th>
-<th align="center"><strong>Experimental factors</strong></th>
-<th align="center"><strong>File name</strong></th>
-<th align="right"><strong>Total transcripts/sequences assembled</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">G1</td>
-<td align="center">September Female</td>
-<td align="center">G1_KI_trinity</td>
-<td align="right">46538</td>
-</tr>
-<tr class="even">
-<td align="right">G2</td>
-<td align="center">September Female</td>
-<td align="center">G2_KI_trinity</td>
-<td align="right">43283</td>
-</tr>
-<tr class="odd">
-<td align="right">G3</td>
-<td align="center">March/April Female</td>
-<td align="center">G3_KI_trinity</td>
-<td align="right">35991</td>
-</tr>
-<tr class="even">
-<td align="right">G4</td>
-<td align="center">March/April Male</td>
-<td align="center">G4_KI_trinity</td>
-<td align="right">39239</td>
-</tr>
-<tr class="odd">
-<td align="right">G5</td>
-<td align="center">September Male</td>
-<td align="center">G5_KI_trinity</td>
-<td align="right">37379</td>
-</tr>
-<tr class="even">
-<td align="right">G6</td>
-<td align="center">September Male</td>
-<td align="center">G6K_CDNJBANXX_trinity</td>
-<td align="right">214799</td>
-</tr>
-<tr class="odd">
-<td align="right">G7</td>
-<td align="center">March/April Female</td>
-<td align="center">G7K_CDNJBANXX_trinity</td>
-<td align="right">266539</td>
-</tr>
-<tr class="even">
-<td align="right">G8</td>
-<td align="center">March/April Female</td>
-<td align="center">G8_KI_trinity</td>
-<td align="right">43050</td>
-</tr>
-<tr class="odd">
-<td align="right">All Samples combined</td>
-<td align="center">n/a</td>
-<td align="center">trinity-all</td>
-<td align="right">373287</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="busco" class="section level3">
-<h3>BUSCO</h3>
-<p>Completeness of assemblies were assessed using Benchmarking Universal Single-Copy Orthologs BUSCO version 5.0 (<a href="https://busco.ezlab.org/">BUSCO</a>) and the dataset vertebrata_odb10.</p>
-<p><strong>Moving finalised assembly files into the BUSCO Directory:</strong><br />
-TRINITY automatically names the final outputs “trinity.fasta” within folders which have the sample ID. Therefore for all these files to be moved into one directory for BUSCO to reference, these sequence IDs from the folders must be appended to the file names.</p>
-<p>Conda Version 4.8.3 has been used for all analyses up to this point. update conda as version 4.8.4 or higher is recommended.</p>
-<pre><code>  conda update -n base conda</code></pre>
-<p>This analysis was conducted on eRSA’s NECTAR research cloud</p>
-<p>Working directory of full (single line) hq transcript Isoseq dataset, and trimmed, non-redundant file of transcripts identified as cluster representatives.</p>
-<pre><code>  /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa
-  /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta</code></pre>
-<p>Working directory of assembled (using TRINITY) short read transcript files</p>
-<pre><code>  /mnt/DE-analysis/2_alignedData/trinity</code></pre>
-<p>concatenated short reads all assembled using trinity into largest transcript file/mnt/DE-analysis/2_alignedData/trinity/trinity-all/trinity</p>
-<pre><code>  /mnt/DE-analysis/2_alignedData/trinity/trinity-all/trinity
-  # Then under 
-  # /trinity-sep/&lt;sample_ID_trinity&gt;/trinity
-
-    # Sample IDs folders:
-    #   G1_KI_trinity
-    #   G2_KI_trinity
-    #   G3_KI_trinity
-    #   G4_KI_trinity
-    #   G5_KI_trinity
-    #   G6K_CDNJBANXX_trinity
-    #   G7K_CDNJBANXX_trinity
-    #   G8_KI_trinity</code></pre>
-<p>This was done using the script <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/Output-BUSCO_Name2020.sh">output-BUSCO_Name2020.sh</a> which also moved the long-read assemblies into the correct path:</p>
-<pre><code>  #!/bin/bash
-  #
-  #
-  # This script is used to rename and copy trinity output files with their input file &quot;filestem&quot; into the /BUSCO directory so all files have similar naming convention for input into the BUSCO script.
-  #
-  # The paths in the script assume that a specific directory structure has been set up.
-  #
-  # Modules required: none
-  #
-  # usage:  bash Output-BUSCO_Name2020.sh
-  # location:           cd /scratch/user/mahe0050/BUSCO/
-  
-  # Carmel Maher
-  # August 2020
-  
-  
-  #------adjust these for your run-----
-  
-  #------------------------------------
-  
-  
-  function error_exit
-  {
-      # Exit function due to fatal error
-      # Accepts 1 arg:
-      # string - descriptive error message
-  
-      echo &quot;${PROGNAME}: ${1:-&quot;Unknown error&quot;}&quot; 1&gt;&amp;2
-      exit 1
-  }
-  
-  
-  # go to the working directory - working from /clean
-  cd /scratch/user/mahe0050/DE-analysis/1_trimmedData  || error_exit &quot;$LINENO: Directory Error 1&quot;
-  
-  for file in *R1_clean.fq.gz
-    do
-  
-        FILESTEM=${file%_*}
-        #this FILESTEM only cuts to _clean, the _R1 is included in stem
-        FILESTEM=${FILESTEM/R1/}
-        #removes R1 from FILESTEM (FILESTEM ends in _ therefore not needed in &quot;text&quot; names)
-        
-        cp -i /scratch/user/mahe0050/DE-analysis/2_alignedData/trinity-sep/$FILESTEM&quot;trinity&quot;/trinity/Trinity.fasta /scratch/user/mahe0050/BUSCO/$FILESTEM&quot;t_assembled&quot;.fasta  || error_exit &quot;$LINENO: Error copying separate trinity outputs&quot;
-        
-            # -&gt; all files should end up in /scratch/user/mahe0050/BUSCO named G#_XX.t_assembled.fasta
-        
-    done
-  
-    echo &quot;Trinity-sep done&quot;
-  
-  cp -i /scratch/user/mahe0050/DE-analysis/2_alignedData/trinity-all/trinity/Trinity.fasta /scratch/user/mahe0050/BUSCO/trinity-all_assembled.fasta  || error_exit &quot;$LINENO: Error copying concatenated trinity-all output&quot;
-    
-        # -&gt; one ANGEL file should end up in /scratch/user/mahe0050/BUSCO named trinity-all_assembled.fasta
-  
-    echo &quot;Trinity-all done&quot;
-    
-  cp -i /scratch/user/mahe0050/IsoSeq-analysis/data/Cogent/collected/hq.fasta.no5merge.collapsed.rep.fa /scratch/user/mahe0050/BUSCO/hq.fasta.no5merge.collapsed.rep_assembled.fasta  || error_exit &quot;$LINENO: Error copying Cogent output&quot;
-    
-        # -&gt; one Cogent file should end up in /scratch/user/mahe0050/BUSCO named hq.fasta.no5merge.collapsed.rep_assembled.fasta
-  
-    echo &quot;Cogent done&quot;
-  
-  cp -i /scratch/user/mahe0050/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds /scratch/user/mahe0050/BUSCO/pygmy.ANGEL_assembled.fasta  || error_exit &quot;$LINENO: Error copying ANGEL output&quot;
-    
-        # -&gt; one ANGEL file should end up in /scratch/user/mahe0050/BUSCO named pygmy.ANGEL_assembled.fasta
-  
-    echo &quot;ANGEL done&quot;
-  
-    
-  # all file sizes checked after run = matches
-  # Trinity outputs removed from scratch 20/12/2020 to save space</code></pre>
-<p><strong>Editing .fasta headers so that BUSCO can input the files</strong></p>
-<p>This <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/BUSCO_all_v5.0.sh">BUSCO_all_v5.0.sh</a> document contains notes and single lines run to run BUSCO 5.0 installed using the conda package on all short read and long read assembled transcript files. It outlines how to format the input files in preparation for BUSCO and the usage of the BUSCO script.</p>
-<p>Sample format compatibility</p>
-<pre><code>  cd /mnt/IsoSeq-analysis/BUSCO/
-  
-  # NOTE the Isoseq files have symbols in fasta headers before transcript IDs which need to be removed for BUSCO
-  </code></pre>
-<p>Header formats:</p>
-<pre><code>  head /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa
-  &gt;PB.4.2|004079|path1:6-612(+)|transcript/24311 transcript/24311 full_length_coverage=2;length=640;num_subreads=60
-  
-  head /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta
-  &gt;PB.11.2|004815|path2:1047-3035(+)|transcript/13401 transcript/13401 full_length_coverage=2;length=1995;num_subreads=8
-  
-  head /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds
-  &gt;PB.11.2|004815|path2:1047-3035(+)|transcript/13401|m.5 type:dumb-complete len:311 strand:+ pos:214-1146</code></pre>
-<p>Total number of sequences:</p>
-<pre><code>  grep -c &quot;&gt;&quot; /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa
-  15729
-  grep -c &quot;&gt;&quot; /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta
-  9813
-  grep -c &quot;&gt;&quot; /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds
-  13882
-  </code></pre>
-<p>after sed to remove all “/” resulted in an error at metaeuk headers “ValueError: could not convert string to float: ‘+’”, after sed to remove all “+” same error.</p>
-<p>Goal is a %score of alignments to BUSCOs and which transcripts match is no explored further. Therefore all headers were grossly simplified. The files created here are ONLY used for BUSCO.</p>
-<pre><code>  cut -d &#39;|&#39; -f1 /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta &gt; reference_transcripts.1Lv.clean_.fasta
-  
-  cut -d &#39;|&#39; -f1 /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds &gt; pygmy.ANGEL_.cds
-  
-  cut -d &#39;|&#39; -f1 /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa &gt; hq.fasta.no5merge.collapsed.rep.1L_.fa
-  </code></pre>
-<p>Total number of sequences retained as counted above</p>
-<pre><code>  grep -c &quot;&gt;&quot; reference_transcripts.1Lv.clean_.fasta
-  9813
-  grep -c &quot;&gt;&quot; pygmy.ANGEL_.cds
-  13882
-  grep -c &quot;&gt;&quot; hq.fasta.no5merge.collapsed.rep.1L_.fa
-  15729</code></pre>
-<p>Two of these files will have “duplicate” headers in this format. numbers were simply appended as below so that all values are unique:</p>
-<pre><code>  awk &#39;/^&gt;/{$0=$0&quot;_&quot;(++i)}1&#39;  pygmy.ANGEL_.cds &gt; pygmy.ANGEL__.cds
-  awk &#39;/^&gt;/{$0=$0&quot;_&quot;(++i)}1&#39;  hq.fasta.no5merge.collapsed.rep.1L_.fa &gt; hq.fasta.no5merge.collapsed.rep.1L__.fa
-  
-  grep -c &quot;&gt;&quot; pygmy.ANGEL__.cds
-  13882
-  grep -c &quot;&gt;&quot; hq.fasta.no5merge.collapsed.rep.1L__.fa
-  15729</code></pre>
-<p><strong>BUSCO Installation &amp; usage:</strong></p>
-<p>The script <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/run-conda-BUSCO.bash">run-conda-BUSCO.bash</a> was used to run the program BUSCO on all samples on the NECTAR machine.</p>
-<pre><code>  cd /mnt/IsoSeq-analysis/BUSCO
-  
-  #Create a conda environment for the BUSCO Install
-  
-  conda create -n conda-BUSCO -c bioconda -c conda-forge busco=5.0.0
-  conda activate conda-BUSCO</code></pre>
-<p>The basic repeated usage of BUSCO for all samples listed below will be:</p>
-<pre><code>  busco -i [SEQUENCE_FILE] -l [LINEAGE] -o [OUTPUT_NAME] -m transcriptome
-  
-  
-  # note: E-value cutoff for BLAST searches Default: 1e-03
-  
-  # busco --list-datasets
-  #check $LINEAGE in script file
-  #     - vertebrata_odb10
-  #     may also --auto-lineage-euk
-  
-  # script currently set to threads (-c) = 12</code></pre>
-<p>Run BUSCO -&gt; usage</p>
-<pre><code>  # location of usage doesnt matter as paths are specified within script.
-  # use from within /mnt/IsoSeq-analysis/BUSCO/ in case of log files.
-  # Usage:
-            conda activate conda-BUSCO
-            screen
-            bash run-conda-BUSCO.bash 2&gt;&amp;1 | tee BUSCO-out.txt</code></pre>
-<p>run-conda-BUSCO.bash:</p>
-<pre><code>  #!/bin/bash
-  #
-  #
-  # This script is used to assess transcriptome outputs against BUSCO lineages 
-  # The paths in the script assume that a specific directory structure has been set up.
-  # Analysis run on eRSA NECTAR machine
-  #
-  #Usage:
-  #             conda activate conda-BUSCO
-  #         screen
-  #             bash run-conda-BUSCO.bash 2&gt;&amp;1 | tee BUSCO-out.txt
-  
-  # Carmel Maher
-  # February 2021
-  
-  
-  # See notes file associated with usage: BUSCO_all_v5.0.sh
-  # Inputs include:
-  #     Short-read Trinity outputs for all 8 Kidney samples assembled from short reads
-  #     Short-read Trinity output for one file of all 8 kidney sequencing concatenated and assembled into a single transcript file
-  #     Isoseq3 long-read de novo assembly full list of hq transcripts
-  #     Isoseq3 long-read de novo assembly list of non-redundant representative transcripts of peptide clusters, with additional poly-a tail trimming
-  
-  
-  #------adjust these for your run-----
-  
-  LINEAGE=&quot;vertebrata_odb10&quot;
-  
-  #------------------------------------
-  
-  function error_exit
-  {
-      echo &quot;${PROGNAME}: ${1:-&quot;Unknown error&quot;}&quot; 1&gt;&amp;2
-      exit 1
-  }
-  
-  # (commented out because it failed after &quot;done&quot; - rerun with # )
-  
-  #go to the directory containing trimmed files to pull ID names
-  cd /mnt/DE-analysis/1_trimmedData
-  
-  for file in *R1_clean.fq.gz
-    do
-        FILESTEM=${file%_*}
-        #this FILESTEM only cuts to _clean, the _R1 is included in stem
-        FILESTEM=${FILESTEM/R1/}
-        #removes R1 from FILESTEM (FILESTEM ends in _ therefore not needed in &quot;text&quot; names)
-        
-        mkdir /mnt/IsoSeq-analysis/BUSCO/$FILESTEM&quot;BUSCOout&quot; || error_exit &quot;$LINENO: Error creating trinity-sep output directory at $FILESTEM&quot;
-        
-        cd /mnt/IsoSeq-analysis/BUSCO/
-        
-        busco -i /mnt/DE-analysis/2_alignedData/trinity/trinity-sep/$FILESTEM&quot;trinity&quot;/trinity/Trinity.fasta -l $LINEAGE -f -c 12 -o $FILESTEM&quot;BUSCOout&quot; -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at $FILESTEM&quot;
-        
-        cd /mnt/DE-analysis/1_trimmedData
-    done
-  
-  #
-  
-  cd /mnt/IsoSeq-analysis/BUSCO/
-  
-  mkdir ./trinity-all_BUSCOout  || error_exit &quot;$LINENO: directory error at trinity-all&quot;
-  
-  busco -i /mnt/DE-analysis/2_alignedData/trinity/trinity-all/trinity/Trinity.fasta -l $LINEAGE -f -c 12 -o trinity-all_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at trinity-all&quot;
-  
-  #
-  
-  cd /mnt/IsoSeq-analysis/BUSCO/
-  
-  mkdir ./reference-transcripts_BUSCOout || error_exit &quot;$LINENO: directory error at reference-transcripts&quot;
-  
-  busco -i reference_transcripts.1Lv.clean_.fasta -l $LINEAGE -f -c 12 -o reference-transcripts_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at reference-transcripts&quot;
-  
-  #
-  
-  mkdir ./ANGEL.cds_BUSCOout || error_exit &quot;$LINENO: directory error at reference-transcripts&quot;
-  
-  busco -i pygmy.ANGEL__.cds -l $LINEAGE -f -c 12 -o ANGEL.cds_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at ANGEL.cds&quot;
-  
-  #
-  
-  mkdir ./hq-fasta_BUSCOout || error_exit &quot;$LINENO: directory error at hq-fasta&quot;
-  
-  busco -i hq.fasta.no5merge.collapsed.rep.1L__.fa -l $LINEAGE -f -c 12 -o hq-fasta_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at hq-fasta&quot;
-  
-  #
-  
-  echo &quot;all BUSCOs complete&quot;</code></pre>
-<p><strong>Visualisation</strong></p>
-<p>BUSCO outputs a file named short_summary.specific.vertebrata_odb10.&lt;-o&gt;.txt. These are used to plot a summary figure of all samples.</p>
-<p>generate plot.py and r script of all sample BUSCO summaries</p>
-<pre><code>  mkdir BUSCO_summaries
-  
-  cp G1_KI_BUSCOout/short_summary.*_odb10.G1_KI_BUSCOout.txt BUSCO_summaries/.
-  cp G2_KI_BUSCOout/short_summary.*_odb10.G2_KI_BUSCOout.txt BUSCO_summaries/.
-  cp G3_KI_BUSCOout/short_summary.*_odb10.G3_KI_BUSCOout.txt BUSCO_summaries/.
-  cp G4_KI_BUSCOout/short_summary.*_odb10.G4_KI_BUSCOout.txt BUSCO_summaries/.
-  cp G5_KI_BUSCOout/short_summary.*_odb10.G5_KI_BUSCOout.txt BUSCO_summaries/.
-  cp G6K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G6K_CDNJBANXX_BUSCOout.txt BUSCO_summaries/.
-  cp G7K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G7K_CDNJBANXX_BUSCOout.txt BUSCO_summaries/.
-  cp G8_KI_BUSCOout/short_summary.*_odb10.G8_KI_BUSCOout.txt BUSCO_summaries/.
-  cp reference-transcripts_BUSCOout/short_summary.*_odb10.reference-transcripts_BUSCOout.txt BUSCO_summaries/.
-  cp ANGEL.cds_BUSCOout/short_summary.*_odb10.ANGEL.cds_BUSCOout.txt BUSCO_summaries/.
-  cp hq-fasta_BUSCOout/short_summary.*_odb10.hq-fasta_BUSCOout.txt BUSCO_summaries/.
-  cp trinity-all_BUSCOout/short_summary.*_odb10.trinity-all_BUSCOout.txt BUSCO_summaries/.
-  
-  #(The path below is where the config files for conda-BUSCO environment are located)
-  
-  python3 /mnt/Prog/miniconda3/envs/conda-BUSCO/bin/generate_plot.py -wd /mnt/IsoSeq-analysis/BUSCO/BUSCO_summaries</code></pre>
-<p>Short Read summaries:</p>
-<pre><code>  mkdir BUSCO_SR_summaries
-  
-  cp G1_KI_BUSCOout/short_summary.*_odb10.G1_KI_BUSCOout.txt BUSCO_SR_summaries/.
-  cp G2_KI_BUSCOout/short_summary.*_odb10.G2_KI_BUSCOout.txt BUSCO_SR_summaries/.
-  cp G3_KI_BUSCOout/short_summary.*_odb10.G3_KI_BUSCOout.txt BUSCO_SR_summaries/.
-  cp G4_KI_BUSCOout/short_summary.*_odb10.G4_KI_BUSCOout.txt BUSCO_SR_summaries/.
-  cp G5_KI_BUSCOout/short_summary.*_odb10.G5_KI_BUSCOout.txt BUSCO_SR_summaries/.
-  cp G6K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G6K_CDNJBANXX_SR_BUSCOout.txt BUSCO_summaries/.
-  cp G7K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G7K_CDNJBANXX_SR_BUSCOout.txt BUSCO_summaries/.
-  cp G8_KI_BUSCOout/short_summary.*_odb10.G8_KI_BUSCOout.txt BUSCO_SR_summaries/.
-  cp trinity-all_BUSCOout/short_summary.*_odb10.trinity-all_BUSCOout.txt BUSCO_SR_summaries/.
-  
-  python3 /mnt/Prog/miniconda3/envs/conda-BUSCO/bin/generate_plot.py -wd /mnt/IsoSeq-analysis/BUSCO/BUSCO_SR_summaries
-  </code></pre>
-<p>Long Read summaries:</p>
-<pre><code>  mkdir BUSCO_LR_summaries
-  
-  cp reference-transcripts_BUSCOout/short_summary.*_odb10.reference-transcripts_BUSCOout.txt BUSCO_LR_summaries/.
-  cp ANGEL.cds_BUSCOout/short_summary.*_odb10.ANGEL.cds_BUSCOout.txt BUSCO_LR_summaries/.
-  cp hq-fasta_BUSCOout/short_summary.*_odb10.hq-fasta_BUSCOout.txt BUSCO_LR_summaries/.
-  
-  python3 /mnt/Prog/miniconda3/envs/conda-BUSCO/bin/generate_plot.py -wd /mnt/IsoSeq-analysis/BUSCO/BUSCO_LR_summaries</code></pre>
-<p>These files for each sample were also moved into an R working directory to allow the generated figure to be edited.</p>
-<hr />
-</div>
-</div>
-</div>
-<div id="chapter-5---annotation" class="section level1">
-<h1>Chapter 5 - Annotation</h1>
-<p>Completed on the long read data from Chapter 4<br />
-pygmy.ANGEL.cds, pygmy.ANGEL.pep, pygmy.ANGEL.utr</p>
-<div id="blastx" class="section level2">
-<h2>BLASTx</h2>
-<p>BLASTx searches were conducted on the dataset at this stage to include isoforms that are collapsed later on.</p>
-<p>BLASTx was run on the pygmy.ANGEL.cds file as it contains the predicted open reading frame sequence of nucleotides for translateable proteins. This was completed on the NECTAR machine.</p>
-<pre><code>  # Package: blast 2.9.0, build Mar 11 2019 15:20:05
-  # Uniprot sprot &amp; trembl databases downloaded: 28/5/19     (note: trembl database not indexed or used)
-  # Anolis .pep fasta files downloaded 12/11/19
-        Anolis_carolinensis.AnoCar2.0.pep.all.fa
-        Anolis_carolinensis.AnoCar2.0.pep.abinitio.fa
-
-
-  # To format a database: #
-  # makeblastdb –in mydb.fsa –dbtype nucl –parse_seqids</code></pre>
-<p>UniProt SwissProt database:</p>
-<pre><code>  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/makeblastdb -in uniprot_sprot.fasta -parse_seqids -blastdb_version 5 -title &quot;sprot&quot; -dbtype prot -out sprot</code></pre>
-<p>Anolis carolinensis proteins database:</p>
-<pre><code>#AnoCar2.0.pep.all
-/mnt/Prog/blast/ncbi-blast-2.9.0+/bin/makeblastdb -in Anolis_carolinensis.AnoCar2.0.pep.all.fa -parse_seqids -blastdb_version 5 -title &quot;sprot&quot; -dbtype prot -out AnoCar2.0.pep.all</code></pre>
-<p>Anolis Carolinensis database 2:</p>
-<pre><code>  #AnoCar2.0.pep.abinitio
-  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/makeblastdb -in Anolis_carolinensis.AnoCar2.0.pep.abinitio.fa -parse_seqids -blastdb_version 5 -title &quot;sprot&quot; -dbtype prot -out AnoCar2.0.pep.abinitio</code></pre>
-<p>Various searches were run in a screen to examine the effects of parameters and databases. Final searches are as listed below.</p>
-<p>Searches included all databases listed above and variations of the parameters: -max_target_seqs 5 or -max_target_seqs 1 -max_hsps 5 or -max_hsps 1 -evalue 0.00001 or -evalue 1e-10</p>
-<p>The NCBI Blast results most often referenced in the thesis are final parameters blastx -fmt6 -maxtarget1 -maxhsps1 -eval0.00001 against the UniProt SwissProt database.</p>
-<pre><code>  # uniprot sprot
-  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/sprot/sprot -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_sprot-maxtarg1-maxhsp1.out -outfmt 6 -max_target_seqs 1 -max_hsps 1 -evalue 0.00001 -num_threads 3
-
-  #AnoCar2.0.pep.all
-  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/AcarProt/AnoCar2.0.pep.all/AnoCar2.0.pep.all -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_AnoCar.pep.all-maxtarg1-maxhsp1.out -outfmt 6 -max_target_seqs 1 -max_hsps 1 -evalue 0.00001 -num_threads 3</code></pre>
-<p>All searches except the below were output in tab separated -outfmt 6. Due to import requirements an -outfmt 5 an .xml file was required for results to be visualised in the program BLAST2GO (-max_target_seqs 5 -max_hsps 5 -evalue 0.00001).</p>
-<pre><code>  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/sprot/sprot -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_sprot-BLAST2GO -outfmt 5 -max_target_seqs 5 -max_hsps 5 -evalue 0.00001 -num_threads 4
-
-  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/AcarProt/AnoCar2.0.pep.all/AnoCar2.0.pep.all -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_AnoCar.pep.all-BLAST2GO -outfmt 5 -max_target_seqs 5 -max_hsps 5 -evalue 0.00001 -num_threads 4</code></pre>
-<p>The above and other trial searches are all listed in the file <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%205%20-%20Annotation/IsoSeq%20analysis%20post-ANGEL%20blast%20notes.sh">IsoSeq analysis post-ANGEL blast notes.sh</a></p>
 </div>
 <div id="cd-hit" class="section level2">
 <h2>CD-HIT</h2>
@@ -2736,24 +2284,24 @@ CD-HIT notes and recorded output are in <a href="https://github.com/Carmel-src/T
 <p>dplyr was used to manipulate the CD-Hit output to create a list of unique transcript IDs of the longest representative transcript for each cluster. This list file is required in the following step to subset from the full length transcript file which contains the untranslated regions.</p>
 <p>Load libraries and set the working directory</p>
 <p>Import 1598936109.fas.1.clstr.sorted, the CD-Hit output file with all transcript IDs assigned to a sorted cluster (note: ./ReferenceClusters/ has been continually included due to setwd errors).</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1">clstr &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;./ReferenceClusters/1598936109.fas.1.clstr.sorted&quot;</span>, <span class="dt">sep =</span> <span class="st">&#39;</span><span class="ch">\t</span><span class="st">&#39;</span>, <span class="dt">row.names =</span> <span class="ot">NULL</span>, <span class="dt">header =</span> <span class="ot">FALSE</span>, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb65-2" title="2"><span class="kw">head</span>(clstr)</a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" title="1">clstr &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;./ReferenceClusters/1598936109.fas.1.clstr.sorted&quot;</span>, <span class="dt">sep =</span> <span class="st">&#39;</span><span class="ch">\t</span><span class="st">&#39;</span>, <span class="dt">row.names =</span> <span class="ot">NULL</span>, <span class="dt">header =</span> <span class="ot">FALSE</span>, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb41-2" title="2"><span class="kw">head</span>(clstr)</a></code></pre></div>
 <p>Initial file had a blank line with “&gt;Cluster #” in between new clusters. Extend the &gt;Cluster # down the column so that all transcripts are directly associated with a cluster number in their row.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" title="1">clstr2 &lt;-<span class="st"> </span>clstr</a>
-<a class="sourceLine" id="cb66-2" title="2">n =<span class="st"> </span><span class="kw">nrow</span>(clstr)</a>
-<a class="sourceLine" id="cb66-3" title="3">x =<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb66-4" title="4">numbers_only &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="op">!</span><span class="kw">grepl</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">D&quot;</span>, x)</a>
-<a class="sourceLine" id="cb66-5" title="5"><span class="cf">for</span> (row <span class="cf">in</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span>n)) {</a>
-<a class="sourceLine" id="cb66-6" title="6">  <span class="cf">if</span> (<span class="kw">numbers_only</span>(clstr2[row,<span class="dv">1</span>]) <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>) {</a>
-<a class="sourceLine" id="cb66-7" title="7">    clstr2[row,<span class="dv">1</span>] &lt;-<span class="st"> </span>x}</a>
-<a class="sourceLine" id="cb66-8" title="8">  <span class="cf">else</span> {<span class="ot">NULL</span>}</a>
-<a class="sourceLine" id="cb66-9" title="9">  x &lt;-<span class="st"> </span>clstr2[row,<span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb66-10" title="10">}</a>
-<a class="sourceLine" id="cb66-11" title="11"><span class="kw">head</span>(clstr2,<span class="dv">20</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1">clstr2 &lt;-<span class="st"> </span>clstr</a>
+<a class="sourceLine" id="cb42-2" title="2">n =<span class="st"> </span><span class="kw">nrow</span>(clstr)</a>
+<a class="sourceLine" id="cb42-3" title="3">x =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb42-4" title="4">numbers_only &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="op">!</span><span class="kw">grepl</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">D&quot;</span>, x)</a>
+<a class="sourceLine" id="cb42-5" title="5"><span class="cf">for</span> (row <span class="cf">in</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span>n)) {</a>
+<a class="sourceLine" id="cb42-6" title="6">  <span class="cf">if</span> (<span class="kw">numbers_only</span>(clstr2[row,<span class="dv">1</span>]) <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>) {</a>
+<a class="sourceLine" id="cb42-7" title="7">    clstr2[row,<span class="dv">1</span>] &lt;-<span class="st"> </span>x}</a>
+<a class="sourceLine" id="cb42-8" title="8">  <span class="cf">else</span> {<span class="ot">NULL</span>}</a>
+<a class="sourceLine" id="cb42-9" title="9">  x &lt;-<span class="st"> </span>clstr2[row,<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb42-10" title="10">}</a>
+<a class="sourceLine" id="cb42-11" title="11"><span class="kw">head</span>(clstr2,<span class="dv">20</span>)</a></code></pre></div>
 <p>Count the number of transcript members for each cluster.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" title="1">clstr.sums &lt;-<span class="st"> </span><span class="kw">data.frame</span>(dplyr<span class="op">::</span><span class="kw">count</span>(clstr2,V1))</a>
-<a class="sourceLine" id="cb67-2" title="2"><span class="kw">write.csv</span>(clstr.sums, <span class="st">&quot;~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/clstr.sums.csv&quot;</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb67-3" title="3"><span class="kw">head</span>(clstr.sums)</a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1">clstr.sums &lt;-<span class="st"> </span><span class="kw">data.frame</span>(dplyr<span class="op">::</span><span class="kw">count</span>(clstr2,V1))</a>
+<a class="sourceLine" id="cb43-2" title="2"><span class="kw">write.csv</span>(clstr.sums, <span class="st">&quot;~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/clstr.sums.csv&quot;</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb43-3" title="3"><span class="kw">head</span>(clstr.sums)</a></code></pre></div>
 <pre><code>##              V1  n
 ## 1    &gt;Cluster 0 19
 ## 2    &gt;Cluster 1 16
@@ -2762,11 +2310,11 @@ CD-HIT notes and recorded output are in <a href="https://github.com/Carmel-src/T
 ## 5 &gt;Cluster 1000  3
 ## 6 &gt;Cluster 1001  3</code></pre>
 <p>Remove the additional blank row without a transcript name from between each cluster group.</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" title="1"><span class="cf">switch</span> &lt;-<span class="st"> </span>clstr.sums[<span class="dv">1</span>,<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb69-2" title="2">clstr3 &lt;-<span class="st"> </span><span class="kw">cbind</span>(clstr2[<span class="dv">1</span>], clstr)</a>
-<a class="sourceLine" id="cb69-3" title="3">clstr3[<span class="kw">c</span>((<span class="cf">switch</span><span class="dv">-5</span>)<span class="op">:</span>(<span class="cf">switch</span><span class="op">+</span><span class="dv">5</span>)),]</a></code></pre></div>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" title="1">clstr4 &lt;-<span class="st"> </span>clstr2[<span class="op">-</span><span class="kw">which</span>(clstr2<span class="op">$</span>V2 <span class="op">==</span><span class="st"> &quot;&quot;</span>), ]</a>
-<a class="sourceLine" id="cb70-2" title="2">clstr4[<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>,(<span class="cf">switch</span><span class="dv">-5</span>)<span class="op">:</span>(<span class="cf">switch</span><span class="op">+</span><span class="dv">5</span>)),]</a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="cf">switch</span> &lt;-<span class="st"> </span>clstr.sums[<span class="dv">1</span>,<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb45-2" title="2">clstr3 &lt;-<span class="st"> </span><span class="kw">cbind</span>(clstr2[<span class="dv">1</span>], clstr)</a>
+<a class="sourceLine" id="cb45-3" title="3">clstr3[<span class="kw">c</span>((<span class="cf">switch</span><span class="dv">-5</span>)<span class="op">:</span>(<span class="cf">switch</span><span class="op">+</span><span class="dv">5</span>)),]</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1">clstr4 &lt;-<span class="st"> </span>clstr2[<span class="op">-</span><span class="kw">which</span>(clstr2<span class="op">$</span>V2 <span class="op">==</span><span class="st"> &quot;&quot;</span>), ]</a>
+<a class="sourceLine" id="cb46-2" title="2">clstr4[<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>,(<span class="cf">switch</span><span class="dv">-5</span>)<span class="op">:</span>(<span class="cf">switch</span><span class="op">+</span><span class="dv">5</span>)),]</a></code></pre></div>
 <p>Separate CD-Hit information into columns by delimiters:</p>
 <ul>
 <li>Remove &gt; symbol from transcript names</li>
@@ -2774,22 +2322,22 @@ CD-HIT notes and recorded output are in <a href="https://github.com/Carmel-src/T
 <li>Move statistics of % match into a new column byt separating “…”</li>
 <li>Give the columns headers</li>
 </ul>
-<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb71-1" title="1"><span class="kw">library</span>(stringr)</a>
-<a class="sourceLine" id="cb71-2" title="2">clstr5 &lt;-<span class="st"> </span>clstr4</a>
-<a class="sourceLine" id="cb71-3" title="3">clstr5[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(clstr5, gsub, <span class="dt">pattern=</span><span class="st">&#39;&gt;&#39;</span>, <span class="dt">replacement=</span><span class="st">&#39;&#39;</span>)</a>
-<a class="sourceLine" id="cb71-4" title="4">clstr5<span class="fl">.2</span> &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">str_split_fixed</span>(clstr5<span class="op">$</span>V2, <span class="st">&quot;aa, &quot;</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb71-5" title="5">clstr5<span class="fl">.3</span> &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">str_split_fixed</span>(clstr5<span class="fl">.2</span><span class="op">$</span>X2, <span class="st">&quot;... &quot;</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb71-6" title="6">clstr6 &lt;-<span class="st"> </span><span class="kw">cbind</span>(clstr5[<span class="dv">1</span>],clstr5<span class="fl">.2</span>[<span class="dv">1</span>],clstr5<span class="fl">.3</span>[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</a>
-<a class="sourceLine" id="cb71-7" title="7"><span class="kw">colnames</span>(clstr6) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;cluster&quot;</span>,<span class="st">&quot;aa&quot;</span>,<span class="st">&quot;TranscriptID&quot;</span>,<span class="st">&quot;stat&quot;</span>)</a>
-<a class="sourceLine" id="cb71-8" title="8"><span class="kw">head</span>(clstr6)</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">library</span>(stringr)</a>
+<a class="sourceLine" id="cb47-2" title="2">clstr5 &lt;-<span class="st"> </span>clstr4</a>
+<a class="sourceLine" id="cb47-3" title="3">clstr5[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(clstr5, gsub, <span class="dt">pattern=</span><span class="st">&#39;&gt;&#39;</span>, <span class="dt">replacement=</span><span class="st">&#39;&#39;</span>)</a>
+<a class="sourceLine" id="cb47-4" title="4">clstr5<span class="fl">.2</span> &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">str_split_fixed</span>(clstr5<span class="op">$</span>V2, <span class="st">&quot;aa, &quot;</span>, <span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb47-5" title="5">clstr5<span class="fl">.3</span> &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">str_split_fixed</span>(clstr5<span class="fl">.2</span><span class="op">$</span>X2, <span class="st">&quot;... &quot;</span>, <span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb47-6" title="6">clstr6 &lt;-<span class="st"> </span><span class="kw">cbind</span>(clstr5[<span class="dv">1</span>],clstr5<span class="fl">.2</span>[<span class="dv">1</span>],clstr5<span class="fl">.3</span>[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb47-7" title="7"><span class="kw">colnames</span>(clstr6) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;cluster&quot;</span>,<span class="st">&quot;aa&quot;</span>,<span class="st">&quot;TranscriptID&quot;</span>,<span class="st">&quot;stat&quot;</span>)</a>
+<a class="sourceLine" id="cb47-8" title="8"><span class="kw">head</span>(clstr6)</a></code></pre></div>
 <p>Filter based on rows that have a &quot;*&quot; in the stat column. These indicate the representative sequences for each cluster determined by CD-Hit and will act as the main reference.</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" title="1">clstr7 &lt;-<span class="st"> </span><span class="kw">filter</span>(clstr6, stat <span class="op">==</span><span class="st"> &quot;*&quot;</span>)</a>
-<a class="sourceLine" id="cb72-2" title="2"><span class="kw">head</span>(clstr7, <span class="dv">50</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1">clstr7 &lt;-<span class="st"> </span><span class="kw">filter</span>(clstr6, stat <span class="op">==</span><span class="st"> &quot;*&quot;</span>)</a>
+<a class="sourceLine" id="cb48-2" title="2"><span class="kw">head</span>(clstr7, <span class="dv">50</span>)</a></code></pre></div>
 <p>Pull out the column “TranscriptID” and export into a txt file so it can be used as a list to extract these sequences.</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" title="1">clstrTranscriptID &lt;-<span class="st"> </span><span class="kw">pull</span>(clstr7, <span class="dt">var =</span> TranscriptID)</a>
-<a class="sourceLine" id="cb73-2" title="2"></a>
-<a class="sourceLine" id="cb73-3" title="3"><span class="kw">write.csv</span>(clstrTranscriptID, <span class="st">&quot;~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/clstrTranscriptID.csv&quot;</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb73-4" title="4"><span class="kw">head</span>(clstrTranscriptID)</a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1">clstrTranscriptID &lt;-<span class="st"> </span><span class="kw">pull</span>(clstr7, <span class="dt">var =</span> TranscriptID)</a>
+<a class="sourceLine" id="cb49-2" title="2"></a>
+<a class="sourceLine" id="cb49-3" title="3"><span class="kw">write.csv</span>(clstrTranscriptID, <span class="st">&quot;~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/clstrTranscriptID.csv&quot;</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb49-4" title="4"><span class="kw">head</span>(clstrTranscriptID)</a></code></pre></div>
 <pre><code>## [1] PB.6088.11|e88f16|path1:164-2792(+)|transcript/22345|m.11362
 ## [2] PB.2919.1|6c1fb9|path4:13-2574(+)|transcript/10624|m.5342   
 ## [3] PB.535.2|136fa8|path0:1-2775(+)|transcript/4312|m.913       
@@ -2798,9 +2346,9 @@ CD-HIT notes and recorded output are in <a href="https://github.com/Carmel-src/T
 ## [6] PB.715.4|1b393a|path6:6-8031(+)|transcript/8|m.1216         
 ## 13882 Levels: PB.10.1|004815|path1:5-1713(+)|transcript/17534|m.3 ...</code></pre>
 <p>Pull out the first segment before the first | from column “TranscriptID” and export into a txt file. this reduced the ID to the initial PB.&lt;loci_index&gt;.&lt;isoform_index&gt; identifier.</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" title="1">WholeTranscriptID &lt;-<span class="st"> </span><span class="kw">word</span>(clstrTranscriptID,<span class="dv">1</span>,<span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">|&quot;</span>)</a>
-<a class="sourceLine" id="cb75-2" title="2"><span class="kw">write.csv</span>(WholeTranscriptID, <span class="st">&quot;~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/WholeTranscriptID.csv&quot;</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb75-3" title="3"><span class="kw">head</span>(WholeTranscriptID)</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1">WholeTranscriptID &lt;-<span class="st"> </span><span class="kw">word</span>(clstrTranscriptID,<span class="dv">1</span>,<span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">|&quot;</span>)</a>
+<a class="sourceLine" id="cb51-2" title="2"><span class="kw">write.csv</span>(WholeTranscriptID, <span class="st">&quot;~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/WholeTranscriptID.csv&quot;</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">col.names =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb51-3" title="3"><span class="kw">head</span>(WholeTranscriptID)</a></code></pre></div>
 <pre><code>## [1] &quot;PB.6088.11&quot; &quot;PB.2919.1&quot;  &quot;PB.535.2&quot;   &quot;PB.4689.2&quot;  &quot;PB.6357.1&quot; 
 ## [6] &quot;PB.715.4&quot;</code></pre>
 <p>Note there are “duplicates” if the name is truncated all the way back to the PB.&lt;loci_index&gt;.&lt;isoform_index&gt; identifier due to multiple isoforms that are retained. A longer, but still truncated version of this ID (excluding the information appended by ANGEL) is required to subset from the hq.fasta.no5merge.collapsed.rep.fa file.</p>
@@ -2809,8 +2357,10 @@ CD-HIT notes and recorded output are in <a href="https://github.com/Carmel-src/T
 <div id="seqtk" class="section level2">
 <h2>Seqtk</h2>
 <p>Seqtk was used on the NECTAR machine to manipulate the fasta files and subset based on list files of transcript names.</p>
-<p>Installation: #Carmel July 2020 - see email from Amy 20/4/2020</p>
-<pre><code>  #Used on NECTAR research cloud
+<p>Installation:</p>
+<pre><code>  #Carmel July 2020
+  
+  #Used on NECTAR research cloud
   
   #Relies on hard-coded paths &amp; filenames
   #run line by line in shell
@@ -3218,6 +2768,468 @@ Rather than attempting to piece pygmy.ANGEL.cds and pygmy.ANGEL.utr back togethe
   #also looks good.</code></pre>
 <p>reference_transcripts.1Lv.clean.fasta - IS THE REFERENCE</p>
 </div>
+<div id="short-read-data" class="section level2">
+<h2><ins><strong><em>Short Read data</em></strong></ins></h2>
+<p>De-novo assembly of short-read Transcripts:<br />
+Short read transcripts used for gene expression analysis in Chater 6 were initially intended for de-novo assembly and analysis due to a lack of closely related genomic references for T. adelaidensis.</p>
+<p>This section outlines the methods for assembly of short read datasets in the absence of a reference or genome for the purposes of comparing these final transcript datasets to the assembly generated from the long reads as above.</p>
+<p>Other notes: Initial plans for Chapter 6 did not include the availability of long-read sequencing to supplement a reference transcript list. Therefore a pooled transcript assembly was created by concatenating reads from all eight samples in order to use this larger dataset as a reference for the program <a href="https://github.com/Oshlack/Corset/wiki">Corset</a>.</p>
+<p>Sequences Downloaded from the Australian Genomics Research Facility server &amp; checksumms verified.<br />
+This analysis was conducted on the Flinders University ‘Deep Thought’ HPC.</p>
+</div>
+<div id="fastqc-quality-assessment" class="section level2">
+<h2>FASTQC quality assessment</h2>
+<p>Quality of sequencing output was quantified using the following <a href>script</a></p>
+<p>The FastQC Reports were then combined for visualisation using <a href="https://bioconductor.org/packages/release/bioc/html/ngsReports.html">NGSReports</a> The output html file of all eight samples PRIOR to trimming is available <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/FastQC-8K_ngsReports_Fastqc-edit.html">here</a>.</p>
+</div>
+<div id="bbduk-adapter-trimming" class="section level2">
+<h2>BBduk adapter trimming</h2>
+<p>Trimming to remove Illumina TruSeq adapters and SMARTer PCR tags as well as trimming based on quality scores.</p>
+</div>
+<div id="fastqc-quality-assessment-1" class="section level2">
+<h2>FASTQC quality assessment</h2>
+<p>Quality of trimmed data was then assessed again using FastQC.<br />
+The output html file of all eight samples FastQC reports AFTER trimming is available <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/FastQC-clean_ngsReports_Fastqc---Copy.html">here</a>.</p>
+</div>
+<div id="de-novo-assembly-with-trinity" class="section level2">
+<h2>De-novo assembly with TRINITY</h2>
+<p><em>De-novo</em> assembly of transcripts.<br />
+Singleton reads (where a paired read was eliminated in quality trimming) were included for all TRINITY assembly runs. Assembly was run on each sample individually as well as on a pooled (concatenated) file of all reads.</p>
+<p><a href>trinity2019.sh</a></p>
+<p><a href>TrinityName.sh</a></p>
+</div>
+<div id="summary-quantification" class="section level2">
+<h2><ins><strong><em>Summary / Quantification</em></strong></ins></h2>
+</div>
+<div id="long-read-sequences-data-summary" class="section level2">
+<h2>Long read sequences data summary</h2>
+</div>
+<div id="short-read-sequences-data-summary" class="section level2">
+<h2>Short read sequences data summary</h2>
+<p>Total Transcript count of each TRINITY generated dataset was simply conducted using shell commands. Total transcript count for long read files are included in the BUSCO usage file below as headers required manipulation for input into BUSCO and totals were checked at this step.</p>
+<table>
+<colgroup>
+<col width="22%"></col>
+<col width="27%"></col>
+<col width="27%"></col>
+<col width="22%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right"><strong>Sample ID</strong></th>
+<th align="center"><strong>Experimental factors</strong></th>
+<th align="center"><strong>File name</strong></th>
+<th align="right"><strong>Total transcripts/sequences assembled</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">G1</td>
+<td align="center">September Female</td>
+<td align="center">G1_KI_trinity</td>
+<td align="right">46538</td>
+</tr>
+<tr class="even">
+<td align="right">G2</td>
+<td align="center">September Female</td>
+<td align="center">G2_KI_trinity</td>
+<td align="right">43283</td>
+</tr>
+<tr class="odd">
+<td align="right">G3</td>
+<td align="center">March/April Female</td>
+<td align="center">G3_KI_trinity</td>
+<td align="right">35991</td>
+</tr>
+<tr class="even">
+<td align="right">G4</td>
+<td align="center">March/April Male</td>
+<td align="center">G4_KI_trinity</td>
+<td align="right">39239</td>
+</tr>
+<tr class="odd">
+<td align="right">G5</td>
+<td align="center">September Male</td>
+<td align="center">G5_KI_trinity</td>
+<td align="right">37379</td>
+</tr>
+<tr class="even">
+<td align="right">G6</td>
+<td align="center">September Male</td>
+<td align="center">G6K_CDNJBANXX_trinity</td>
+<td align="right">214799</td>
+</tr>
+<tr class="odd">
+<td align="right">G7</td>
+<td align="center">March/April Female</td>
+<td align="center">G7K_CDNJBANXX_trinity</td>
+<td align="right">266539</td>
+</tr>
+<tr class="even">
+<td align="right">G8</td>
+<td align="center">March/April Female</td>
+<td align="center">G8_KI_trinity</td>
+<td align="right">43050</td>
+</tr>
+<tr class="odd">
+<td align="right">All Samples combined</td>
+<td align="center">n/a</td>
+<td align="center">trinity-all</td>
+<td align="right">373287</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="busco" class="section level2">
+<h2>BUSCO</h2>
+<p>Completeness of assemblies were assessed using Benchmarking Universal Single-Copy Orthologs BUSCO version 5.0 (<a href="https://busco.ezlab.org/">BUSCO</a>) and the dataset vertebrata_odb10.</p>
+<p><strong>Moving finalised assembly files into the BUSCO Directory:</strong><br />
+TRINITY automatically names the final outputs “trinity.fasta” within folders which have the sample ID. Therefore for all these files to be moved into one directory for BUSCO to reference, these sequence IDs from the folders must be appended to the file names.</p>
+<p>Conda Version 4.8.3 has been used for all analyses up to this point. update conda as version 4.8.4 or higher is recommended.</p>
+<pre><code>  conda update -n base conda</code></pre>
+<p>This analysis was conducted on eRSA’s NECTAR research cloud</p>
+<p>Working directory of full (single line) hq transcript Isoseq dataset, and trimmed, non-redundant file of transcripts identified as cluster representatives.</p>
+<pre><code>  /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa
+  /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta</code></pre>
+<p>Working directory of assembled (using TRINITY) short read transcript files</p>
+<pre><code>  /mnt/DE-analysis/2_alignedData/trinity</code></pre>
+<p>concatenated short reads all assembled using trinity into largest transcript file/mnt/DE-analysis/2_alignedData/trinity/trinity-all/trinity</p>
+<pre><code>  /mnt/DE-analysis/2_alignedData/trinity/trinity-all/trinity
+  # Then under 
+  # /trinity-sep/&lt;sample_ID_trinity&gt;/trinity
+
+    # Sample IDs folders:
+    #   G1_KI_trinity
+    #   G2_KI_trinity
+    #   G3_KI_trinity
+    #   G4_KI_trinity
+    #   G5_KI_trinity
+    #   G6K_CDNJBANXX_trinity
+    #   G7K_CDNJBANXX_trinity
+    #   G8_KI_trinity</code></pre>
+<p>This was done using the script <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/Output-BUSCO_Name2020.sh">output-BUSCO_Name2020.sh</a> which also moved the long-read assemblies into the correct path:</p>
+<pre><code>  #!/bin/bash
+  #
+  #
+  # This script is used to rename and copy trinity output files with their input file &quot;filestem&quot; into the /BUSCO directory so all files have similar naming convention for input into the BUSCO script.
+  #
+  # The paths in the script assume that a specific directory structure has been set up.
+  #
+  # Modules required: none
+  #
+  # usage:  bash Output-BUSCO_Name2020.sh
+  # location:           cd /scratch/user/mahe0050/BUSCO/
+  
+  # Carmel Maher
+  # August 2020
+  
+  
+  #------adjust these for your run-----
+  
+  #------------------------------------
+  
+  
+  function error_exit
+  {
+      # Exit function due to fatal error
+      # Accepts 1 arg:
+      # string - descriptive error message
+  
+      echo &quot;${PROGNAME}: ${1:-&quot;Unknown error&quot;}&quot; 1&gt;&amp;2
+      exit 1
+  }
+  
+  
+  # go to the working directory - working from /clean
+  cd /scratch/user/mahe0050/DE-analysis/1_trimmedData  || error_exit &quot;$LINENO: Directory Error 1&quot;
+  
+  for file in *R1_clean.fq.gz
+    do
+  
+        FILESTEM=${file%_*}
+        #this FILESTEM only cuts to _clean, the _R1 is included in stem
+        FILESTEM=${FILESTEM/R1/}
+        #removes R1 from FILESTEM (FILESTEM ends in _ therefore not needed in &quot;text&quot; names)
+        
+        cp -i /scratch/user/mahe0050/DE-analysis/2_alignedData/trinity-sep/$FILESTEM&quot;trinity&quot;/trinity/Trinity.fasta /scratch/user/mahe0050/BUSCO/$FILESTEM&quot;t_assembled&quot;.fasta  || error_exit &quot;$LINENO: Error copying separate trinity outputs&quot;
+        
+            # -&gt; all files should end up in /scratch/user/mahe0050/BUSCO named G#_XX.t_assembled.fasta
+        
+    done
+  
+    echo &quot;Trinity-sep done&quot;
+  
+  cp -i /scratch/user/mahe0050/DE-analysis/2_alignedData/trinity-all/trinity/Trinity.fasta /scratch/user/mahe0050/BUSCO/trinity-all_assembled.fasta  || error_exit &quot;$LINENO: Error copying concatenated trinity-all output&quot;
+    
+        # -&gt; one ANGEL file should end up in /scratch/user/mahe0050/BUSCO named trinity-all_assembled.fasta
+  
+    echo &quot;Trinity-all done&quot;
+    
+  cp -i /scratch/user/mahe0050/IsoSeq-analysis/data/Cogent/collected/hq.fasta.no5merge.collapsed.rep.fa /scratch/user/mahe0050/BUSCO/hq.fasta.no5merge.collapsed.rep_assembled.fasta  || error_exit &quot;$LINENO: Error copying Cogent output&quot;
+    
+        # -&gt; one Cogent file should end up in /scratch/user/mahe0050/BUSCO named hq.fasta.no5merge.collapsed.rep_assembled.fasta
+  
+    echo &quot;Cogent done&quot;
+  
+  cp -i /scratch/user/mahe0050/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds /scratch/user/mahe0050/BUSCO/pygmy.ANGEL_assembled.fasta  || error_exit &quot;$LINENO: Error copying ANGEL output&quot;
+    
+        # -&gt; one ANGEL file should end up in /scratch/user/mahe0050/BUSCO named pygmy.ANGEL_assembled.fasta
+  
+    echo &quot;ANGEL done&quot;
+  
+    
+  # all file sizes checked after run = matches
+  # Trinity outputs removed from scratch 20/12/2020 to save space</code></pre>
+<p><strong>Editing .fasta headers so that BUSCO can input the files</strong></p>
+<p>This <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/BUSCO_all_v5.0.sh">BUSCO_all_v5.0.sh</a> document contains notes and single lines run to run BUSCO 5.0 installed using the conda package on all short read and long read assembled transcript files. It outlines how to format the input files in preparation for BUSCO and the usage of the BUSCO script.</p>
+<p>Sample format compatibility</p>
+<pre><code>  cd /mnt/IsoSeq-analysis/BUSCO/
+  
+  # NOTE the Isoseq files have symbols in fasta headers before transcript IDs which need to be removed for BUSCO
+  </code></pre>
+<p>Header formats:</p>
+<pre><code>  head /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa
+  &gt;PB.4.2|004079|path1:6-612(+)|transcript/24311 transcript/24311 full_length_coverage=2;length=640;num_subreads=60
+  
+  head /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta
+  &gt;PB.11.2|004815|path2:1047-3035(+)|transcript/13401 transcript/13401 full_length_coverage=2;length=1995;num_subreads=8
+  
+  head /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds
+  &gt;PB.11.2|004815|path2:1047-3035(+)|transcript/13401|m.5 type:dumb-complete len:311 strand:+ pos:214-1146</code></pre>
+<p>Total number of sequences:</p>
+<pre><code>  grep -c &quot;&gt;&quot; /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa
+  15729
+  grep -c &quot;&gt;&quot; /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta
+  9813
+  grep -c &quot;&gt;&quot; /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds
+  13882
+  </code></pre>
+<p>after sed to remove all “/” resulted in an error at metaeuk headers “ValueError: could not convert string to float: ‘+’”, after sed to remove all “+” same error.</p>
+<p>Goal is a %score of alignments to BUSCOs and which transcripts match is no explored further. Therefore all headers were grossly simplified. The files created here are ONLY used for BUSCO.</p>
+<pre><code>  cut -d &#39;|&#39; -f1 /mnt/IsoSeq-analysis/data/Seqtk/reference_transcripts.1Lv.clean.fasta &gt; reference_transcripts.1Lv.clean_.fasta
+  
+  cut -d &#39;|&#39; -f1 /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds &gt; pygmy.ANGEL_.cds
+  
+  cut -d &#39;|&#39; -f1 /mnt/IsoSeq-analysis/data/Seqtk/hq.fasta.no5merge.collapsed.rep.1L.fa &gt; hq.fasta.no5merge.collapsed.rep.1L_.fa
+  </code></pre>
+<p>Total number of sequences retained as counted above</p>
+<pre><code>  grep -c &quot;&gt;&quot; reference_transcripts.1Lv.clean_.fasta
+  9813
+  grep -c &quot;&gt;&quot; pygmy.ANGEL_.cds
+  13882
+  grep -c &quot;&gt;&quot; hq.fasta.no5merge.collapsed.rep.1L_.fa
+  15729</code></pre>
+<p>Two of these files will have “duplicate” headers in this format. numbers were simply appended as below so that all values are unique:</p>
+<pre><code>  awk &#39;/^&gt;/{$0=$0&quot;_&quot;(++i)}1&#39;  pygmy.ANGEL_.cds &gt; pygmy.ANGEL__.cds
+  awk &#39;/^&gt;/{$0=$0&quot;_&quot;(++i)}1&#39;  hq.fasta.no5merge.collapsed.rep.1L_.fa &gt; hq.fasta.no5merge.collapsed.rep.1L__.fa
+  
+  grep -c &quot;&gt;&quot; pygmy.ANGEL__.cds
+  13882
+  grep -c &quot;&gt;&quot; hq.fasta.no5merge.collapsed.rep.1L__.fa
+  15729</code></pre>
+<p><strong>BUSCO Installation &amp; usage:</strong></p>
+<p>The script <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/run-conda-BUSCO.bash">run-conda-BUSCO.bash</a> was used to run the program BUSCO on all samples on the NECTAR machine.</p>
+<pre><code>  cd /mnt/IsoSeq-analysis/BUSCO
+  
+  #Create a conda environment for the BUSCO Install
+  
+  conda create -n conda-BUSCO -c bioconda -c conda-forge busco=5.0.0
+  conda activate conda-BUSCO</code></pre>
+<p>The basic repeated usage of BUSCO for all samples listed below will be:</p>
+<pre><code>  busco -i [SEQUENCE_FILE] -l [LINEAGE] -o [OUTPUT_NAME] -m transcriptome
+  
+  
+  # note: E-value cutoff for BLAST searches Default: 1e-03
+  
+  # busco --list-datasets
+  #check $LINEAGE in script file
+  #     - vertebrata_odb10
+  #     may also --auto-lineage-euk
+  
+  # script currently set to threads (-c) = 12</code></pre>
+<p>Run BUSCO -&gt; usage</p>
+<pre><code>  # location of usage doesnt matter as paths are specified within script.
+  # use from within /mnt/IsoSeq-analysis/BUSCO/ in case of log files.
+  # Usage:
+            conda activate conda-BUSCO
+            screen
+            bash run-conda-BUSCO.bash 2&gt;&amp;1 | tee BUSCO-out.txt</code></pre>
+<p>run-conda-BUSCO.bash:</p>
+<pre><code>  #!/bin/bash
+  #
+  #
+  # This script is used to assess transcriptome outputs against BUSCO lineages 
+  # The paths in the script assume that a specific directory structure has been set up.
+  # Analysis run on eRSA NECTAR machine
+  #
+  #Usage:
+  #             conda activate conda-BUSCO
+  #         screen
+  #             bash run-conda-BUSCO.bash 2&gt;&amp;1 | tee BUSCO-out.txt
+  
+  # Carmel Maher
+  # February 2021
+  
+  
+  # See notes file associated with usage: BUSCO_all_v5.0.sh
+  # Inputs include:
+  #     Short-read Trinity outputs for all 8 Kidney samples assembled from short reads
+  #     Short-read Trinity output for one file of all 8 kidney sequencing concatenated and assembled into a single transcript file
+  #     Isoseq3 long-read de novo assembly full list of hq transcripts
+  #     Isoseq3 long-read de novo assembly list of non-redundant representative transcripts of peptide clusters, with additional poly-a tail trimming
+  
+  
+  #------adjust these for your run-----
+  
+  LINEAGE=&quot;vertebrata_odb10&quot;
+  
+  #------------------------------------
+  
+  function error_exit
+  {
+      echo &quot;${PROGNAME}: ${1:-&quot;Unknown error&quot;}&quot; 1&gt;&amp;2
+      exit 1
+  }
+  
+  # (commented out because it failed after &quot;done&quot; - rerun with # )
+  
+  #go to the directory containing trimmed files to pull ID names
+  cd /mnt/DE-analysis/1_trimmedData
+  
+  for file in *R1_clean.fq.gz
+    do
+        FILESTEM=${file%_*}
+        #this FILESTEM only cuts to _clean, the _R1 is included in stem
+        FILESTEM=${FILESTEM/R1/}
+        #removes R1 from FILESTEM (FILESTEM ends in _ therefore not needed in &quot;text&quot; names)
+        
+        mkdir /mnt/IsoSeq-analysis/BUSCO/$FILESTEM&quot;BUSCOout&quot; || error_exit &quot;$LINENO: Error creating trinity-sep output directory at $FILESTEM&quot;
+        
+        cd /mnt/IsoSeq-analysis/BUSCO/
+        
+        busco -i /mnt/DE-analysis/2_alignedData/trinity/trinity-sep/$FILESTEM&quot;trinity&quot;/trinity/Trinity.fasta -l $LINEAGE -f -c 12 -o $FILESTEM&quot;BUSCOout&quot; -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at $FILESTEM&quot;
+        
+        cd /mnt/DE-analysis/1_trimmedData
+    done
+  
+  #
+  
+  cd /mnt/IsoSeq-analysis/BUSCO/
+  
+  mkdir ./trinity-all_BUSCOout  || error_exit &quot;$LINENO: directory error at trinity-all&quot;
+  
+  busco -i /mnt/DE-analysis/2_alignedData/trinity/trinity-all/trinity/Trinity.fasta -l $LINEAGE -f -c 12 -o trinity-all_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at trinity-all&quot;
+  
+  #
+  
+  cd /mnt/IsoSeq-analysis/BUSCO/
+  
+  mkdir ./reference-transcripts_BUSCOout || error_exit &quot;$LINENO: directory error at reference-transcripts&quot;
+  
+  busco -i reference_transcripts.1Lv.clean_.fasta -l $LINEAGE -f -c 12 -o reference-transcripts_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at reference-transcripts&quot;
+  
+  #
+  
+  mkdir ./ANGEL.cds_BUSCOout || error_exit &quot;$LINENO: directory error at reference-transcripts&quot;
+  
+  busco -i pygmy.ANGEL__.cds -l $LINEAGE -f -c 12 -o ANGEL.cds_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at ANGEL.cds&quot;
+  
+  #
+  
+  mkdir ./hq-fasta_BUSCOout || error_exit &quot;$LINENO: directory error at hq-fasta&quot;
+  
+  busco -i hq.fasta.no5merge.collapsed.rep.1L__.fa -l $LINEAGE -f -c 12 -o hq-fasta_BUSCOout -m transcriptome || error_exit &quot;$LINENO: Error running BUSCO at hq-fasta&quot;
+  
+  #
+  
+  echo &quot;all BUSCOs complete&quot;</code></pre>
+<p><strong>Visualisation</strong></p>
+<p>BUSCO outputs a file named short_summary.specific.vertebrata_odb10.&lt;-o&gt;.txt. These are used to plot a summary figure of all samples.</p>
+<p>generate plot.py and r script of all sample BUSCO summaries</p>
+<pre><code>  mkdir BUSCO_summaries
+  
+  cp G1_KI_BUSCOout/short_summary.*_odb10.G1_KI_BUSCOout.txt BUSCO_summaries/.
+  cp G2_KI_BUSCOout/short_summary.*_odb10.G2_KI_BUSCOout.txt BUSCO_summaries/.
+  cp G3_KI_BUSCOout/short_summary.*_odb10.G3_KI_BUSCOout.txt BUSCO_summaries/.
+  cp G4_KI_BUSCOout/short_summary.*_odb10.G4_KI_BUSCOout.txt BUSCO_summaries/.
+  cp G5_KI_BUSCOout/short_summary.*_odb10.G5_KI_BUSCOout.txt BUSCO_summaries/.
+  cp G6K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G6K_CDNJBANXX_BUSCOout.txt BUSCO_summaries/.
+  cp G7K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G7K_CDNJBANXX_BUSCOout.txt BUSCO_summaries/.
+  cp G8_KI_BUSCOout/short_summary.*_odb10.G8_KI_BUSCOout.txt BUSCO_summaries/.
+  cp reference-transcripts_BUSCOout/short_summary.*_odb10.reference-transcripts_BUSCOout.txt BUSCO_summaries/.
+  cp ANGEL.cds_BUSCOout/short_summary.*_odb10.ANGEL.cds_BUSCOout.txt BUSCO_summaries/.
+  cp hq-fasta_BUSCOout/short_summary.*_odb10.hq-fasta_BUSCOout.txt BUSCO_summaries/.
+  cp trinity-all_BUSCOout/short_summary.*_odb10.trinity-all_BUSCOout.txt BUSCO_summaries/.
+  
+  #(The path below is where the config files for conda-BUSCO environment are located)
+  
+  python3 /mnt/Prog/miniconda3/envs/conda-BUSCO/bin/generate_plot.py -wd /mnt/IsoSeq-analysis/BUSCO/BUSCO_summaries</code></pre>
+<p>Short Read summaries:</p>
+<pre><code>  mkdir BUSCO_SR_summaries
+  
+  cp G1_KI_BUSCOout/short_summary.*_odb10.G1_KI_BUSCOout.txt BUSCO_SR_summaries/.
+  cp G2_KI_BUSCOout/short_summary.*_odb10.G2_KI_BUSCOout.txt BUSCO_SR_summaries/.
+  cp G3_KI_BUSCOout/short_summary.*_odb10.G3_KI_BUSCOout.txt BUSCO_SR_summaries/.
+  cp G4_KI_BUSCOout/short_summary.*_odb10.G4_KI_BUSCOout.txt BUSCO_SR_summaries/.
+  cp G5_KI_BUSCOout/short_summary.*_odb10.G5_KI_BUSCOout.txt BUSCO_SR_summaries/.
+  cp G6K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G6K_CDNJBANXX_SR_BUSCOout.txt BUSCO_summaries/.
+  cp G7K_CDNJBANXX_BUSCOout/short_summary.*_odb10.G7K_CDNJBANXX_SR_BUSCOout.txt BUSCO_summaries/.
+  cp G8_KI_BUSCOout/short_summary.*_odb10.G8_KI_BUSCOout.txt BUSCO_SR_summaries/.
+  cp trinity-all_BUSCOout/short_summary.*_odb10.trinity-all_BUSCOout.txt BUSCO_SR_summaries/.
+  
+  python3 /mnt/Prog/miniconda3/envs/conda-BUSCO/bin/generate_plot.py -wd /mnt/IsoSeq-analysis/BUSCO/BUSCO_SR_summaries
+  </code></pre>
+<p>Long Read summaries:</p>
+<pre><code>  mkdir BUSCO_LR_summaries
+  
+  cp reference-transcripts_BUSCOout/short_summary.*_odb10.reference-transcripts_BUSCOout.txt BUSCO_LR_summaries/.
+  cp ANGEL.cds_BUSCOout/short_summary.*_odb10.ANGEL.cds_BUSCOout.txt BUSCO_LR_summaries/.
+  cp hq-fasta_BUSCOout/short_summary.*_odb10.hq-fasta_BUSCOout.txt BUSCO_LR_summaries/.
+  
+  python3 /mnt/Prog/miniconda3/envs/conda-BUSCO/bin/generate_plot.py -wd /mnt/IsoSeq-analysis/BUSCO/BUSCO_LR_summaries</code></pre>
+<p>These files for each sample were also moved into an R working directory to allow the generated figure to be edited.</p>
+<hr />
+</div>
+</div>
+<div id="annotation-chapter-5" class="section level1">
+<h1>Annotation (Chapter 5)</h1>
+<p>Completed on the long read data from Chapter 4<br />
+pygmy.ANGEL.cds, pygmy.ANGEL.pep, pygmy.ANGEL.utr</p>
+<div id="blastx" class="section level2">
+<h2>BLASTx</h2>
+<p>BLASTx searches were conducted on the dataset at this stage to include isoforms that are collapsed later on.</p>
+<p>BLASTx was run on the pygmy.ANGEL.cds file as it contains the predicted open reading frame sequence of nucleotides for translateable proteins. This was completed on the NECTAR machine.</p>
+<pre><code>  # Package: blast 2.9.0, build Mar 11 2019 15:20:05
+  # Uniprot sprot &amp; trembl databases downloaded: 28/5/19     (note: trembl database not indexed or used)
+  # Anolis .pep fasta files downloaded 12/11/19
+        Anolis_carolinensis.AnoCar2.0.pep.all.fa
+        Anolis_carolinensis.AnoCar2.0.pep.abinitio.fa
+
+
+  # To format a database: #
+  # makeblastdb –in mydb.fsa –dbtype nucl –parse_seqids</code></pre>
+<p>UniProt SwissProt database:</p>
+<pre><code>  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/makeblastdb -in uniprot_sprot.fasta -parse_seqids -blastdb_version 5 -title &quot;sprot&quot; -dbtype prot -out sprot</code></pre>
+<p>Anolis carolinensis proteins database:</p>
+<pre><code>#AnoCar2.0.pep.all
+/mnt/Prog/blast/ncbi-blast-2.9.0+/bin/makeblastdb -in Anolis_carolinensis.AnoCar2.0.pep.all.fa -parse_seqids -blastdb_version 5 -title &quot;sprot&quot; -dbtype prot -out AnoCar2.0.pep.all</code></pre>
+<p>Anolis Carolinensis database 2:</p>
+<pre><code>  #AnoCar2.0.pep.abinitio
+  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/makeblastdb -in Anolis_carolinensis.AnoCar2.0.pep.abinitio.fa -parse_seqids -blastdb_version 5 -title &quot;sprot&quot; -dbtype prot -out AnoCar2.0.pep.abinitio</code></pre>
+<p>Various searches were run in a screen to examine the effects of parameters and databases. Final searches are as listed below.</p>
+<p>Searches included all databases listed above and variations of the parameters: -max_target_seqs 5 or -max_target_seqs 1 -max_hsps 5 or -max_hsps 1 -evalue 0.00001 or -evalue 1e-10</p>
+<p>The NCBI Blast results most often referenced in the thesis are final parameters blastx -fmt6 -maxtarget1 -maxhsps1 -eval0.00001 against the UniProt SwissProt database.</p>
+<pre><code>  # uniprot sprot
+  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/sprot/sprot -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_sprot-maxtarg1-maxhsp1.out -outfmt 6 -max_target_seqs 1 -max_hsps 1 -evalue 0.00001 -num_threads 3
+
+  #AnoCar2.0.pep.all
+  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/AcarProt/AnoCar2.0.pep.all/AnoCar2.0.pep.all -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_AnoCar.pep.all-maxtarg1-maxhsp1.out -outfmt 6 -max_target_seqs 1 -max_hsps 1 -evalue 0.00001 -num_threads 3</code></pre>
+<p>All searches except the below were output in tab separated -outfmt 6. Due to import requirements an -outfmt 5 an .xml file was required for results to be visualised in the program BLAST2GO (-max_target_seqs 5 -max_hsps 5 -evalue 0.00001).</p>
+<pre><code>  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/sprot/sprot -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_sprot-BLAST2GO -outfmt 5 -max_target_seqs 5 -max_hsps 5 -evalue 0.00001 -num_threads 4
+
+  /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/AcarProt/AnoCar2.0.pep.all/AnoCar2.0.pep.all -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_AnoCar.pep.all-BLAST2GO -outfmt 5 -max_target_seqs 5 -max_hsps 5 -evalue 0.00001 -num_threads 4</code></pre>
+<p>The above and other trial searches are all listed in the file <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%205%20-%20Annotation/IsoSeq%20analysis%20post-ANGEL%20blast%20notes.sh">IsoSeq analysis post-ANGEL blast notes.sh</a></p>
+</div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 <p><strong>15729</strong> Total transcript isoforms retained in initial cleaning and clustering of redundant isoforms.</p>
@@ -3227,8 +3239,8 @@ Rather than attempting to piece pygmy.ANGEL.cds and pygmy.ANGEL.utr back togethe
 <hr />
 </div>
 </div>
-<div id="chapter-6---gene-expression-analysis" class="section level1">
-<h1>Chapter 6 - Gene expression analysis</h1>
+<div id="gene-expression-analysis-chapter-6" class="section level1">
+<h1>Gene expression analysis (Chapter 6)</h1>
 <div id="long-reads-reference-index---previous-analysis" class="section level5">
 <h5>Long reads (reference index) - Previous analysis:</h5>
 <ul>

@@ -1810,124 +1810,126 @@ When long read data became available both datasets have been assembled <em>de-no
   &gt;primer_3p
   GTACTCTGCGTTGATACCACTGCTT</code></pre>
 <p>A single script was used to complete the Pacific Biosciences Isoseq3 pipeline <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/isoseq3.sh">isoseq3.sh</a>:</p>
-<pre><code>  #!/bin/bash
-  #
-  # This script is used to characterise full length transcripts de novo using smrttools and bioconda as specified by PacBio workflow
-  # see: https://github.com/PacificBiosciences/IsoSeq3/blob/master/README_v3.0.md and follow links for bioconda references
-  #
-  # The paths in the script assume that a specific directory structure has been set up.
-  # This directory structure is for the Nectar cloud VM
-  
-  # open a screen
-  # usage from /mnt
-  # bash isoseq3.sh &lt;ctrl-a ctrl-d&gt;
-  #
-  # Carmel Maher
-  # April 2019
-  
-  
-  #---------Installed Programs---------
-  
-  # smrttools               -&gt; smrttools-release_6.0.0.47835
-    # help:
-    # /pacbio/smrtlink/install/smrtlink-release_6.0.0.47841/bundles/smrttools/install/smrttools-release_6.0.0.47835/smrtcmds/bin/isoseq3 -h
-    # /pacbio/smrtlink/install/smrtlink-release_6.0.0.47841/bundles/smrttools/install/smrttools-release_6.0.0.47835/smrtcmds/bin/isoseq3 --version
-    # Version: isoseq3 3.0.0 (commit v3.0.0-7-gcc6cddd)
-  
-  # python 2.7          -&gt; to run miniconda - automatically installed on nectar
-  # miniconda           -&gt; recommended python 2.7 compatible version by PacBio workflow. Miniconda2 | VER: 4.6.14
-  # ccs                     -&gt; installed through conda, inside pbccs package | VER: pbccs-3.4.1
-  # lima                    -&gt; installed through conda | VER: lima-1.9.0
-  
-  
-  #------adjust these for your run------
-  
-  #as per the local installation, the smrttools program directories are (in /mnt). Notable directories listed in installation: 
-  SMRT_ROOT=/mnt/pacbio/smrtlink
-  
-  # Isoseq3 executeable location (from /mnt)
-  Iso3_DIR=$SMRT_ROOT/install/smrtlink-release_6.0.0.47841/bundles/smrttools/install/smrttools-release_6.0.0.47835/smrtcmds/bin
-  
-  DATA=/mnt/data
-  MOVIE=&quot;MAH6260A1_m54196_190204_223227&quot;
-  THREADS=0     #0 for the Iseseq3 tools =autodetection of threads and is the default
-  
-  
-  #------------------------------------
+<pre class="shell"><code>      #!/bin/bash
+      #
+      # This script is used to characterise full length transcripts de novo using smrttools and bioconda as specified by PacBio workflow
+      # see: https://github.com/PacificBiosciences/IsoSeq3/blob/master/README_v3.0.md and follow links for bioconda references
+      #
+      # The paths in the script assume that a specific directory structure has been set up.
+      # This directory structure is for the Nectar cloud VM
+      
+      # open a screen
+      # usage from /mnt
+      # bash isoseq3.sh &lt;ctrl-a ctrl-d&gt;
+      #
+      # Carmel Maher
+      # April 2019
+      
+      
+      #---------Installed Programs---------
+      
+      # smrttools               -&gt; smrttools-release_6.0.0.47835
+        # help:
+        # /pacbio/smrtlink/install/smrtlink-release_6.0.0.47841/bundles/smrttools/install/smrttools-release_6.0.0.47835/smrtcmds/bin/isoseq3 -h
+        # /pacbio/smrtlink/install/smrtlink-release_6.0.0.47841/bundles/smrttools/install/smrttools-release_6.0.0.47835/smrtcmds/bin/isoseq3 --version
+        # Version: isoseq3 3.0.0 (commit v3.0.0-7-gcc6cddd)
+      
+      # python 2.7          -&gt; to run miniconda - automatically installed on nectar
+      # miniconda           -&gt; recommended python 2.7 compatible version by PacBio workflow. Miniconda2 | VER: 4.6.14
+      # ccs                     -&gt; installed through conda, inside pbccs package | VER: pbccs-3.4.1
+      # lima                    -&gt; installed through conda | VER: lima-1.9.0
+      
+      
+      #------adjust these for your run------
+      
+      #as per the local installation, the smrttools program directories are (in /mnt). Notable directories listed in installation: 
+      SMRT_ROOT=/mnt/pacbio/smrtlink
+      
+      # Isoseq3 executeable location (from /mnt)
+      Iso3_DIR=$SMRT_ROOT/install/smrtlink-release_6.0.0.47841/bundles/smrttools/install/smrttools-release_6.0.0.47835/smrtcmds/bin
+      
+      DATA=/mnt/data
+      MOVIE=&quot;MAH6260A1_m54196_190204_223227&quot;
+      THREADS=0     #0 for the Iseseq3 tools =autodetection of threads and is the default
+      
+      
+      #------------------------------------
 
-  function error_exit
-  {
-      # Exit function due to fatal error
-      # Accepts 1 arg:
-      # string - descriptive error message
-  
-      echo &quot;${PROGNAME}: ${1:-&quot;Unknown error&quot;}&quot; 1&gt;&amp;2
-      exit 1
-  }
+      function error_exit
+      {
+          # Exit function due to fatal error
+          # Accepts 1 arg:
+          # string - descriptive error message
+      
+          echo &quot;${PROGNAME}: ${1:-&quot;Unknown error&quot;}&quot; 1&gt;&amp;2
+          exit 1
+      }
 
-  # go to the working data directory
-  cd $DATA || error_exit &quot;$LINENO: directory error&quot;
+      # go to the working data directory
+      cd $DATA || error_exit &quot;$LINENO: directory error&quot;
 
-  # Generate consensus sequnces (ccs file) from raw subread data
-  # NOTE: this automatically runs with default autodetection of threads =  8
-  ccs $MOVIE.subreads.bam $MOVIE.ccs.bam --noPolish --minPasses 1 || error_exit &quot;$LINENO: consensus sequence ccs error&quot;
-  
-  echo &quot; - - - consensus sequnces generated&quot;
+      # Generate consensus sequnces (ccs file) from raw subread data
+      # NOTE: this automatically runs with default autodetection of threads =  8
+      ccs $MOVIE.subreads.bam $MOVIE.ccs.bam --noPolish --minPasses 1 || error_exit &quot;$LINENO: consensus sequence ccs error&quot;
+      
+      echo &quot; - - - consensus sequnces generated&quot;
 
-  # The primers.fasta as per the recommended Clontech SMARTer cDNA library prep - no barcodes used for this sample 
-  # primers.fasta has been uploaded to /mnt/data and does not need to be created here:
-        # primers.fasta
-        # &gt;primer_5p
-        # AAGCAGTGGTATCAACGCAGAGTACATGGG
-        # &gt;primer_3p
-        # GTACTCTGCGTTGATACCACTGCTT
+      # The primers.fasta as per the recommended Clontech SMARTer cDNA library prep - no barcodes used for this sample 
+      # primers.fasta has been uploaded to /mnt/data and does not need to be created here:
+            # primers.fasta
+            # &gt;primer_5p
+            # AAGCAGTGGTATCAACGCAGAGTACATGGG
+            # &gt;primer_3p
+            # GTACTCTGCGTTGATACCACTGCTT
 
-  # Remove primers and demultiplex:
-  lima --isoseq --dump-clips --no-pbi $MOVIE.ccs.bam primers.fasta demux.bam || error_exit &quot;$LINENO: Primer demultiplex lima error&quot;
-  
-  echo &quot; - - - primers removed and demultiplexed&quot;
-  
-                #!#!#!#!# 
-                # CHECK #  Note: A search using Git bash on the output files for any of the primers listed for Isoseq by Pacific biosciences returns no results after this script
-                #!#!#!#!#
-  
-  # *********************
-  # From here on, execute the following steps for each output BAM file. -- only one in this case.
-  # isoseq3 tool usage: isoseq3 &lt;tool&gt;
-  # due to nectar permissions and installation location, usage: $Iso3_DIR/isoseq3 &lt;tool&gt;
-  # *********************
+      # Remove primers and demultiplex:
+      lima --isoseq --dump-clips --no-pbi $MOVIE.ccs.bam primers.fasta demux.bam || error_exit &quot;$LINENO: Primer demultiplex lima error&quot;
+      
+      echo &quot; - - - primers removed and demultiplexed&quot;
+      
+                    #!#!#!#!# 
+                    # CHECK #  Note: A search using Git bash on the output files for any of the primers listed for Isoseq by Pacific biosciences returns no results after this script
+                    #!#!#!#!#
+      
+      # *********************
+      # From here on, execute the following steps for each output BAM file. -- only one in this case.
+      # isoseq3 tool usage: isoseq3 &lt;tool&gt;
+      # due to nectar permissions and installation location, usage: $Iso3_DIR/isoseq3 &lt;tool&gt;
+      # *********************
 
-  ### cluster Tool: Cluster CCS reads and generate unpolished transcripts.
-  # recommended to give this step as many cores as possible
-  # Usage
-  # isoseq3 cluster [options] input output
-  # Example
-  # isoseq3 cluster &lt;two types of potential inputfile&gt; demux.bam &lt;OR&gt; $MOVIE.consensusreadset.xml  unpolished.bam
-  
-  # Cluster consensus sequences to generate unpolished transcripts:
-  # note the demux.bam is named after the headers used in primers.fasta
-  $Iso3_DIR/isoseq3 cluster --verbose -j $THREADS demux.primer_5p--primer_3p.bam unpolished.bam || error_exit &quot;$LINENO: Isoseq3 cluster error&quot;
-  
-  echo &quot; - - - css reads clustered&quot;
+      ### cluster Tool: Cluster CCS reads and generate unpolished transcripts.
+      # recommended to give this step as many cores as possible
+      # Usage
+      # isoseq3 cluster [options] input output
+      # Example
+      # isoseq3 cluster &lt;two types of potential inputfile&gt; demux.bam &lt;OR&gt; $MOVIE.consensusreadset.xml  unpolished.bam
+      
+      # Cluster consensus sequences to generate unpolished transcripts:
+      # note the demux.bam is named after the headers used in primers.fasta
+      $Iso3_DIR/isoseq3 cluster --verbose -j $THREADS demux.primer_5p--primer_3p.bam unpolished.bam || error_exit &quot;$LINENO: Isoseq3 cluster error&quot;
+      
+      echo &quot; - - - css reads clustered&quot;
 
-  ### polish Tool: Polish transcripts using subreads.
-  # Usage
-  # isoseq3 polish [options] input_1 input_2 output
-  
-  # Polish transcripts using subreads:
-  $Iso3_DIR/isoseq3 polish --verbose -j $THREADS unpolished.bam $MOVIE.subreads.bam polished.bam || error_exit &quot;$LINENO: Isoseq3 polish error&quot;
-  
-  echo &quot; - - - transcripts polished&quot;
+      ### polish Tool: Polish transcripts using subreads.
+      # Usage
+      # isoseq3 polish [options] input_1 input_2 output
+      
+      # Polish transcripts using subreads:
+      $Iso3_DIR/isoseq3 polish --verbose -j $THREADS unpolished.bam $MOVIE.subreads.bam polished.bam || error_exit &quot;$LINENO: Isoseq3 polish error&quot;
+      
+      echo &quot; - - - transcripts polished&quot;
 
-  ### summarize Tool: Create a .csv-format barcode overview from transcripts.
-  # Usage
-  # isoseq3 summarize [options] input output
-  $Iso3_DIR/isoseq3 summarize --verbose polished.bam summary.csv || error_exit &quot;$LINENO: Isoseq3 summary error&quot;
-  
-  echo &quot; - - - summary file created&quot;
-  echo &quot; - - - done&quot;</code></pre>
-<p>All of the above output was moved into a folder ~/data/2019-04-30_isoseq3_out</p>
-<p>The output from this script, the polished.hq.fasta.gz file was unzipped and then used as the input for the program Cogent.</p>
+      ### summarize Tool: Create a .csv-format barcode overview from transcripts.
+      # Usage
+      # isoseq3 summarize [options] input output
+      $Iso3_DIR/isoseq3 summarize --verbose polished.bam summary.csv || error_exit &quot;$LINENO: Isoseq3 summary error&quot;
+      
+      echo &quot; - - - summary file created&quot;
+      echo &quot; - - - done&quot;
+
+All of the above output was moved into a folder ~/data/2019-04-30_isoseq3_out
+
+The output from this script, the polished.hq.fasta.gz file was unzipped and then used as the input for the program Cogent.</code></pre>
 </div>
 <div id="cogent" class="section level2">
 <h2>Cogent</h2>
@@ -3436,7 +3438,7 @@ The <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Cha
 <div id="both-datasets-are-combined-in-this-analysis" class="section level5">
 <h5>Both datasets are combined in this analysis:</h5>
 <ul>
-<li><del>Gene</del> Transcript counts per million estimated using Kallisto
+<li>Transcript counts per million estimated using Kallisto
 <ul>
 <li>Clean short reads (above) counted against reference index generated from long read .fasta (above)</li>
 </ul></li>
@@ -3475,10 +3477,11 @@ All of this was achieved using the following <a href="https://github.com/Carmel-
   echo $FILESTEM
   
   kallisto quant -i $KallistoDIR/reference_transcripts.1Lv.clean.idx -o $KallistoDIR/$FILESTEM&quot;kallisto-out&quot; -b, --bootstrap-samples=100 --threads=8 --pseudobam $file $FILESTEM&quot;R2_clean.fq.gz&quot; || error_exit &quot;$LINENO: kallisto error at $FILESTEM&quot;</code></pre>
+<p>The full kallisto output is here <a href="https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%206%20-%20Gene%20Expression/kallisto-clstr-clean-log.txt">kallisto-clstr-clean-log.txt</a>.</p>
 </div>
 <div id="edger-expression-analysis" class="section level2">
 <h2>EdgeR Expression Analysis</h2>
-<p>Preliminary data exploration for these data has been included twice for different groupings. The below includes all original eight samples.<br />
+<p>Preliminary data exploration for these data has been included twice for different groupings. The first analysis below includes all original eight samples.<br />
 Samples G6 and G7 have ultimately been removed due to batch effects caused by sequencing runs.</p>
 <div id="eight-t.-adelaidensis-individuals-collected-between-two-seasonal-periods." class="section level3">
 <h3>Eight <em>T. adelaidensis</em> individuals collected between two seasonal periods.</h3>

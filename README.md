@@ -3,8 +3,10 @@
 This repository contains the analysis process for transcript assembly, annotation, and gene expression in kidney tissue of the Australian pygmy bluetongue skink _Tiliqua adelaidensis_.  
 
 Methods are best followed through the document  
-# [Full-Workflow-readthedown](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Full-Workflow-readthedown.html) 
-which outlines the full pipeline and links to script files in the context of each step.  
+## [Full-Workflow.html](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Full-Workflow-readthedown.html) or [Full-Workflow.pdf](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Full-Workflow-readthedown_FOR-PDF.pdf)
+which outlines the full pipeline and links to script files in the context of each step. Both need to be downloaded for viewing.  
+
+***
 
 The below folders contain the full script files as they are linked to in each section of the above html walkthrough:
 

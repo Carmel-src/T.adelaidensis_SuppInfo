@@ -24,4 +24,4 @@ This section of the document outlines annotation of transcripts (and isoforms) o
 ### [Thesis Chapter 6 Supplementary Information](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/tree/main/Chapter%206%20-%20Gene%20Expression)
 #### Gene Expression Analysis
 
-This section of the document outlines gene expression analysis of the same short-read data presented in Chapter 4 supplementary information, however instead of using _de-novo_ assembliescleaned reads were directly alignmed to the long read reference produced in chapters 4 and 5 supplementary information.  
+This section of the document outlines gene expression analysis of the same short-read data presented in Chapter 4 supplementary information, however instead of using _de-novo_ assemblies, cleaned reads were directly alignmed to the long read reference produced in chapters 4 and 5 supplementary information.  

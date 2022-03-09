@@ -1,4 +1,4 @@
-# _T. adelaidensis_ supplementary information for thesis chapters 4, 5 & 6
+# _T. adelaidensis_ supplementary information for thesis chapters 4, 5 & 6 - Included as Thesis Appendix #3
 
 This repository contains the analysis process for transcript assembly, annotation, and gene expression in kidney tissue of the Australian pygmy bluetongue skink _Tiliqua adelaidensis_.  
 

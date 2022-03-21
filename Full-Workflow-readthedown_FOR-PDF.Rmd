@@ -18,11 +18,11 @@ urlcolor: blue
 \newpage
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE, eval=TRUE, warning=FALSE, Message=FALSE, include=TRUE)
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE, eval=TRUE, warning=FALSE, Message=FALSE, error=FALSE, include=TRUE)
 options(tinytex.verbose = TRUE)
 ```
 
-```{r}
+```{r, echo=TRUE, results='hide', error=FALSE, warning=FALSE, message=FALSE}
 library(markdown)
 library(rmdformats)
 library(formatR)
@@ -56,11 +56,11 @@ G8 | March/April Female
 
 There are three main sections to this document, which are referenced in three separate chapters of the thesis:
 
-**Assembly (Chapter 4):** Assembly, cleaning and clustering of transcript isoforms from **both** sequencing formats to form a pseudo-reference for _T. adelaidensis_ and to compare these methods.
+**2. Assembly (Chapter 4):** Assembly, cleaning and clustering of transcript isoforms from **both** sequencing formats to form a pseudo-reference for _T. adelaidensis_ and to compare these methods.
 
-**Annotation (Chapter 5):** Annotation and further analysis of the full length transcript isoforms derived from the long read analysis.
+**3. Annotation (Chapter 5):** Annotation and further analysis of the full length transcript isoforms derived from the long read analysis.
 
-**Gene expression (Chapter 6):** Gene expression analysis using the short read data aligned to the long read pseudo-reference produced in Chapter 4, to assess seasonal variation of gene expression.
+**4. Gene expression (Chapter 6):** Gene expression analysis using the short read data aligned to the long read pseudo-reference produced in Chapter 4, to assess seasonal variation of gene expression.
 
 
 
@@ -613,7 +613,7 @@ Add the PB.loci_index.isoform_index information and number of isoforms:
 
 All these commands except reconstructContig_1.sh and TBreconstructContig.edit.sh are provided in the one document [Running-Cogent-2.sh](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%204%20-%20Assembly/Running-Cogent-2.sh) on Github.  
 
-The longest transcript for each set of isoforms is in hq.fasta.no5merge.collapsed.rep.fa. This file is used in the following step and also provides the full transcripts to be sub-set as a reference based on further clustering in Chapter 5.
+The longest transcript for each set of isoforms is in hq.fasta.no5merge.collapsed.rep.fa. This file is used in the following step and also provides the full transcripts to be sub-set as a reference based on further clustering in Section 2.1.4.
 
 
 \newpage
@@ -689,7 +689,7 @@ Output is written to:
  * pygmy.ANGEL.pep
  * pygmy.ANGEL.utr  
 
-These outputs are used further in Chapter 5 for additional clustering and BLASTx searches.  
+These outputs are used further in (Section 3 below) Chapter 5 for additional clustering and BLASTx searches.  
 
 Note: The reverse strand options within ANGEL are not necessary on Isoseq data.  
 
@@ -919,7 +919,7 @@ check:
       # 19814/2 = 9907. So it is correct
 ```
 
-The hq.fasta.no5merge.collapsed.rep.fa file created in the program ANGEL in Chapter 4 is a fasta file where sequence information ran over multiple "lines" within the file.  
+The hq.fasta.no5merge.collapsed.rep.fa file created in Chapter 4 (Section 2.1.2 above) is a fasta file where sequence information ran over multiple "lines" within the file.  
 
 Seqtk was used to convert this file into a .fasta with sequence on a single line. 
 ```{bash, eval=F}
@@ -958,7 +958,7 @@ The reference list files for this were extracted from the BLASTx output were cre
 
 ### Subsetting full length transcripts which represent each cluster
 
-Creation of a subset of the longest representative transcripts for each cluster as per CD-HIT and the previous two to form the reference for counts in the following Chapter 6.  
+Creation of a subset of the longest representative transcripts for each cluster as per CD-HIT and the previous two to form the reference for counts in the following Chapter 6 (Section 4 below).  
 
 As only the peptide coding sequence of transcripts was used in the BLASTx search and the CD-HIT clustering in order to cluster similarly expressed transcripts, the untranslated regions of transcripts are absent. Our goal is to include these untranslated regions in the reference to be used for gene expression counts.  
 Rather than attempting to piece pygmy.ANGEL.cds and pygmy.ANGEL.utr back together, a truncated version of the transcript names was used to pull the full length unaltered transcript out of the earlier hq.fasta.no5merge.collapsed.rep.fa file. 
@@ -2027,7 +2027,7 @@ The [R script](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/C
 
 # Annotation (Chapter 5)
 
-Completed on the long read data from Chapter 4
+Completed on the long read data from Chapter 4 (Section 2.1.3 above)
 
 - pygmy.ANGEL.cds
 - pygmy.ANGEL.pep
@@ -2441,8 +2441,7 @@ The BLAST output was imported into OmicsBox, where results were then mapped and 
 
 ![Wordcloud of all GO terms annotated based on _T. adelaidensis transcript BLASTx results against the Anolis genome, all GO levels combined  (Predicted _T. adelaidensis_ transcripts in open reading frame (pygmy.ANGEL) as BLAST query against the Anolis genome formatted to a BLAST database)](./FigureCopyDir/GO_Anolis/omicsbox_wordcloud_20191224_155743.png)
 
-Some key words from this wordcloud were used to supplement terms included in the NCBI Gene database search described in section 
-3.2.3 above and outlined in Appendix 4.  
+Some key words from this wordcloud were used to supplement terms included in the NCBI Gene database search described in section 3.2.3 above and outlined in Appendix 4.  
 
 The Anolis database was analysed first as it is the taxonomically closest available genome for comparison. However in order to not limit results, and to maintain some consistency with the annotation done in section 3.2 above, the entire UniProt Swiss prot database BLASTx results were analysed further below.
 
@@ -2461,7 +2460,7 @@ The BLASTx query was:
 ```
 
 With maximum target sequences = 5, Maximum hits per sequence = 5, and a required e-value of 0.00001. 
-Note this limits the results less than the search used in section 3.2 which limited maximum target sequences to 1, and maximum hits per sequence to 1 so that the top result could easily be retrieved manually. As evident in the statistics below, OmicsBox is capable of interpreting multiple hits per query and mapping accordingly without duplicating data beyond the input 13,882 input sequences.
+Note this limits the results less than the search used in section 3.1 above, which limited maximum target sequences to 1, and maximum hits per sequence to 1 so that the top result could easily be retrieved manually. As evident in the statistics below, OmicsBox is capable of interpreting multiple hits per query and mapping accordingly without duplicating data beyond the input 13,882 input sequences.
 
 Blastx results were imported into the program Omics Box, where results were then mapped and annotated to GO terms.
 
@@ -2566,11 +2565,11 @@ Blastx results were imported into the program Omics Box, where results were then
 
 ## Kallisto
 
-Short reads have already been trimmed using BBDuk as per Chapter 4. These cleaned sequences were imported directly into Kallisto.  
+Short reads have already been trimmed using BBDuk as per Chapter 4 (Section 2.2.2 above). These cleaned sequences were imported directly into Kallisto.  
 
 As TRINITY was run on the Flinders' HPC Deep Thought that is where trimming was completed, Kallisto however was run on the eRSA NECTAR cloud machine and files were moved accordingly, keeping directories relative locations intact.  
 
-The file reference_transcripts.1Lv.clean.fasta created in the subsetting section of Chapter 4's methods (section 2.1.7 above) was used as the index.  
+The file reference_transcripts.1Lv.clean.fasta created in the subsetting section of Chapter 4's methods (Section 2.1.7 above) was used as the index.  
 All of this was achieved using the following [kallisto-clstr-clean.sh](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Chapter%206%20-%20Gene%20Expression/kallisto-clstr-clean.sh) script summarised below.  
 
 create the index

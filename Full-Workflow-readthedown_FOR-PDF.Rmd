@@ -2831,7 +2831,7 @@ heatmap.2(highly_variable_lcpm_season,col=rev(morecols(50)),Colv=FALSE,trace="no
 
 ```
 
-![Top 250 most variable transcripts among six _T. adelaidensis_ individuals, based on total counts per million values](./FigureCopyDir/6Samples/High_var_genes.heatmap-season.png)
+![Top 250 most variable transcripts among six _T. adelaidensis_ individuals, based on total counts per million values](./FigureCopyDir/6Samples/High_var_genes.heatmap_season.png)
 
 \newpage
 
@@ -3271,21 +3271,8 @@ plot(volcanoData_Sex, pch = 16, col = point.col_Sex, cex = 0.5)
 ![Negative Log of the p-value against Log Fold Change in expression level comparing Male to Female sex variables among six _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05 and _also_ a log fold change >2.](./FigureCopyDir/6Samples/volcanoData_Sex.png)
 
 \newpage
-***
-
-## Differentially expressed Genes by Season, compared to putative annotations
-
-The differentially expressed genes summarised for seasonal expression in six _T. adelaidensis_ kidney samples were compared to the blastx.gene.join_Database.Full.PBT.summary generated in section 3 above. This annotation summary contains the BLASTx results for the protein coding region for every transcript, the corresponding gene symbol for the identified Swiss-Prot protein ID, and whether or not this gene was represented in the genes of interest list generated in section 3.2.3 above and Appendix 4.
 
 
-```{r}
-
-```
-
-
-
-***
-\newpage
 ***
 
 ## Sequencing batch effects

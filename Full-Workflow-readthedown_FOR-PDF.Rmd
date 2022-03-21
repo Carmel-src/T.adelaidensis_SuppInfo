@@ -22,21 +22,16 @@ knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE, eval=TRUE, warn
 options(tinytex.verbose = TRUE)
 ```
 
-```{r, include=FALSE}
+```{r}
 library(markdown)
 library(rmdformats)
 library(formatR)
 library(edgeR)
-#library(limma)
 library(dplyr)
 library(stringr)
 library(stringi)
 library(RColorBrewer)
-#library(knitr)
-#library(ggplot2)
 library(gplots)
-#library(cowplot)
-#library(tinytex)
 ```
 
 ***
@@ -771,14 +766,14 @@ The output 1598936109.fas.1.clstr.sorted contains the sorted cluster groups gene
 dplyr was used to manipulate the CD-Hit output to create a list of unique transcript IDs of the longest representative transcript for each cluster. This list file is required in the following step to subset from the full length transcript file which contains the untranslated regions.  
 
 Load libraries and set the working directory
-```{r, warning=FALSE, Message=FALSE, include = FALSE, results='hide'}
+```{r, warning=FALSE, Message=FALSE, include=FALSE, results='hide'}
 setwd("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters")
 ```
 
 Import 1598936109.fas.1.clstr.sorted, the CD-Hit output file with all transcript IDs assigned to a sorted cluster (note: ./ReferenceClusters/ has been continually included due to setwd errors).
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE, results='hide'}
 clstr <- read.csv("./ReferenceClusters/1598936109.fas.1.clstr.sorted", sep = '\t', row.names = NULL, header = FALSE, stringsAsFactors = FALSE)
-head(clstr)
+#head(clstr)
 ```
 
 Initial file had a blank line with "\>Cluster #" in between new clusters. Extend the \>Cluster # down the column so that all transcripts are directly associated with a cluster number in their row.
@@ -793,7 +788,7 @@ for (row in c(1:n)) {
   else {NULL}
   x <- clstr2[row,1]
 }
-head(clstr2,20)
+#head(clstr2,20)
 ```
 
 Count the number of transcript members for each cluster.
@@ -829,7 +824,7 @@ clstr5.2 <- data.frame(str_split_fixed(clstr5$V2, "aa, ", 2))
 clstr5.3 <- data.frame(str_split_fixed(clstr5.2$X2, "... ", 2))
 clstr6 <- cbind(clstr5[1],clstr5.2[1],clstr5.3[1:2])
 colnames(clstr6) <- c("cluster","aa","TranscriptID","stat")
-head(clstr6)
+#head(clstr6)
 ```
 
 
@@ -2134,8 +2129,8 @@ Column Headers Renamed to match BLAST output format 6:
 Unisprot.BLASTx.out <- Unisprot.BLASTx.out %>% rename(TranscriptID = V1, UniprotID = V2, pident = V3, length = V4, mismatch = V5, gapopen = V6, qstart = V7, qend = V8, sstart = V9, send = V10, evalue = V11, bitscore = V12)
 
 colnames(Unisprot.BLASTx.out)
-head(Unisprot.BLASTx.out)
-tail(Unisprot.BLASTx.out)
+#head(Unisprot.BLASTx.out)
+#tail(Unisprot.BLASTx.out)
 ```
 
 Gene ID mapping list for Uniprot IDs were imported:
@@ -2177,13 +2172,13 @@ There are now 7218 Unique Uniprot IDs listed and after making case consistent, 6
 Assign gene ID to the BLAST result by joining based on UniProt ID
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 BLASTx.gene.join <- left_join(Unisprot.BLASTx.out, BLASTx.to.gene, by ="UniprotID")
-head(BLASTx.gene.join)
+#head(BLASTx.gene.join)
 ```
 
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 BLASTx.gene.join <- relocate(BLASTx.gene.join, Gene, .before = pident)
-head(BLASTx.gene.join)
-tail(BLASTx.gene.join)
+#head(BLASTx.gene.join)
+#tail(BLASTx.gene.join)
 ```
 
 
@@ -2201,7 +2196,7 @@ BLASTx.gene.join_split <- cbind(BLASTx.gene.join, replicate(1,BLASTx.gene.join$T
 BLASTx.gene.join_split <- rename(BLASTx.gene.join_split, TranscriptID_2 = "replicate(1, BLASTx.gene.join$TranscriptID)")
 names(BLASTx.gene.join_split)
 BLASTx.gene.join_split <- relocate(BLASTx.gene.join_split, "TranscriptID_2", .before = "UniprotID")
-head(BLASTx.gene.join_split)
+#head(BLASTx.gene.join_split)
 
 ```
 
@@ -2211,17 +2206,17 @@ Split the Transcript ID column based on the last "|" and return as a data frame
 BLASTx.gene.join_split2 <- lapply(stri_split_regex(stri_reverse(BLASTx.gene.join_split$TranscriptID_2), pattern = '[|\\s]+', n = 2), stri_reverse)
 BLASTx.gene.join_split2 <- setNames(data.table::transpose(BLASTx.gene.join_split2)[2:1], c('output1', 'output2'))
 BLASTx.gene.join_split2 <- as.data.frame(c(list(input = BLASTx.gene.join_split$TranscriptID_2), BLASTx.gene.join_split2))
-head(BLASTx.gene.join_split2)
+#head(BLASTx.gene.join_split2)
 ```
 
 Rename Columns and Join the truncated columns back into the original dataframe based on TranscriptID_2
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 names(BLASTx.gene.join_split2)
 colnames(BLASTx.gene.join_split2) <- c("TranscriptID_2","TranscriptID_3","TranscriptID_4")
-head(BLASTx.gene.join_split2)
+#head(BLASTx.gene.join_split2)
 
 BLASTx.gene.join_split3 <- full_join(BLASTx.gene.join_split, BLASTx.gene.join_split2, by ="TranscriptID_2")
-head(BLASTx.gene.join_split3)
+#head(BLASTx.gene.join_split3)
 ```
 
 Check: (they all have the same numbers of rows and no data was lost)
@@ -2237,13 +2232,13 @@ Reorder columns so that TranscriptID_3 appears on the left next to the full Tran
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 BLASTx.gene.join_split4 <- subset(BLASTx.gene.join_split3, select = -c(TranscriptID_2,TranscriptID_4))
 BLASTx.gene.join_split4 <- relocate(BLASTx.gene.join_split4, TranscriptID_3, .before = UniprotID)
-head(BLASTx.gene.join_split4)
+#head(BLASTx.gene.join_split4)
 ```
 
 Reorder the rows so that the Data is arranged by Gene in alphabetical order (and so that transcripts coresponding to the same gene are listed together).
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 BLASTx.gene.join_split4 <- BLASTx.gene.join_split4 %>% arrange(Gene)
-head(BLASTx.gene.join_split4)
+#head(BLASTx.gene.join_split4)
 nrow(BLASTx.gene.join_split4) #confirming that number of rows remains consistent. The initial BLASTx result has 12894 rows, and 12894 rows remain.
 ```
 
@@ -2288,7 +2283,7 @@ head(clstrTranscriptID)
 Filter the BLASTx results with gene name based on the transcript references used for the expression analysis (i.e. the clustered transcript file).
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 BLASTx.gene.join_filt_clustered <- BLASTx.gene.join_filt %>% filter(TranscriptID %in% clstrTranscriptID)
-head(BLASTx.gene.join_filt_clustered)
+#head(BLASTx.gene.join_filt_clustered)
 nrow(BLASTx.gene.join_filt_clustered)
 ```
 Note: of the initial 13882 sequences in the predicted open read frame set submitted for a BLASTx search, only 12602 query sequences returned a match, and not all protein ID matches returned a Gene ID match. Coupled with some transcripts that may have been identified to putative gene ID being removed at the CD-HIT clustering step, the total remaining number of transcripts with a coresponding Protein ID and Gene ID here is expected to be less than the clustered reference transcript dataset containing 9813 unique full-length transcripts.  
@@ -2331,7 +2326,7 @@ Rename column Symbol.CAPS to Gene so column can be compared to the Gene column i
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 Sauria_2020.06.14 <- rename(Sauria_2020.06.14, "Gene" = "Symbol.CAPS")
 Sauria_2020.06.14$Gene <− as.character(Sauria_2020.06.14$Gene)
-head(Sauria_2020.06.14)
+#head(Sauria_2020.06.14)
 ```
 
 Create a larger summary file of the transcripts which have a BLASTx result. All BLASTx results will be retained, but there is no need to retain information for 'genes of interest' which were not identified in this dataset. 
@@ -2356,7 +2351,7 @@ head(Gene_transcript_count)
 Filter the genes of interest list based on Gene IDs which match to a BLASTx result from the full transcript list
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
 Sauria_2020.06.14_Transcripts.Present.Full <- semi_join(Sauria_2020.06.14, BLASTx.gene.join_filt, by = "Gene")
-head(Sauria_2020.06.14_Transcripts.Present.Full)
+#head(Sauria_2020.06.14_Transcripts.Present.Full)
 nrow(Sauria_2020.06.14_Transcripts.Present.Full)
 ```
 
@@ -2420,7 +2415,9 @@ BLASTx was run on the eRSA NECTAR machine, using BLAST 2.9.0 against Anolis prot
 Due to import requirements for Blast2GO output format 5 was used instead of output format 6 which is used in all other sections above.
 The BLASTx query was:
 
+```{bash, eval=F}
       /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/AcarProt/AnoCar2.0.pep.all/AnoCar2.0.pep.all -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_AnoCar.pep.all-BLAST2GO -outfmt 5 -max_target_seqs 5 -max_hsps 5 -evalue 0.00001 -num_threads 4
+```
 
 With maximum target sequences = 5, Maximum hits per sequence = 5, and a required e-value of 0.00001  
 
@@ -2459,7 +2456,9 @@ BLASTx was run on the eRSA NECTAR machine, using BLAST 2.9.0 against the UniProt
 Due to import requirements for Blast2GO output format 5 was used instead of output format 6 which is used in all other sections above.
 The BLASTx query was:
 
+```{bash, eval=F}
       /mnt/Prog/blast/ncbi-blast-2.9.0+/bin/blastx -db /mnt/Prog/blast/blastdb/sprot/sprot -query /mnt/IsoSeq-analysis/data/ANGEL/pygmy.ANGEL.cds -out pygmy.ANGEL_blastx_sprot-BLAST2GO -outfmt 5 -max_target_seqs 5 -max_hsps 5 -evalue 0.00001 -num_threads 4
+```
 
 With maximum target sequences = 5, Maximum hits per sequence = 5, and a required e-value of 0.00001. 
 Note this limits the results less than the search used in section 3.2 which limited maximum target sequences to 1, and maximum hits per sequence to 1 so that the top result could easily be retrieved manually. As evident in the statistics below, OmicsBox is capable of interpreting multiple hits per query and mapping accordingly without duplicating data beyond the input 13,882 input sequences.
@@ -2490,22 +2489,21 @@ Blastx results were imported into the program Omics Box, where results were then
 
 \newpage
 
-##### GO Distribution by level 5
-
 ![Top 20 GO annotations by GO level 5 for the GO categories Biological Process (BP, Molecular Function (MF) and Cellular Component (CC) for _T. adelaidensis_ transcripts in predicted open reading frame (pygmy.ANGEL) using BLASTx results against the UniProt Swiss prot database](./FigureCopyDir/GO_UniProt/4.Annotation_stats/GO Distribution by Level/go_distribution_by_level_5_top_20_20220308_184050.png)
 
 \newpage
 
-##### GO Distribution by level 6
-
 ![Top 20 GO annotations by GO level 6 for the GO categories Biological Process (BP, Molecular Function (MF) and Cellular Component (CC) for _T. adelaidensis_ transcripts in predicted open reading frame (pygmy.ANGEL) using BLASTx results against the UniProt Swiss prot database](./FigureCopyDir/GO_UniProt/4.Annotation_stats/GO Distribution by Level/go_distribution_by_level_6_top_20_20220308_184141.png)
+
+\newpage
 
 ![Percent of annotations by number of annotated sequences for GO level 6 (Biological Process -BP) for _T. adelaidensis_ transcripts in predicted open reading frame (pygmy.ANGEL) using BLASTx results against the UniProt Swiss prot database](./FigureCopyDir/GO_UniProt/5.Combined_GO/graph_level_6_pie_chart_of_seqs_biological_process_20220308_190404.png) 
 
-##### GO Distribution by level 7
+\newpage
 
 ![Top 20 GO annotations by GO level 7 for the GO categories Biological Process (BP, Molecular Function (MF) and Cellular Component (CC) for _T. adelaidensis_ transcripts in predicted open reading frame (pygmy.ANGEL) using BLASTx results against the UniProt Swiss prot database](./FigureCopyDir/GO_UniProt/4.Annotation_stats/GO Distribution by Level/go_distribution_by_level_7_top_20_20220308_184303.png)
 
+\newpage
 
 **Combined GO Graphs**
 
@@ -2519,11 +2517,10 @@ Blastx results were imported into the program Omics Box, where results were then
 
 ![Top gene ontology terms by number of annotated sequences for all GO levels in the cellular component category for predicted _T. adelaidensis_ transcripts in open reading frame (pygmy.ANGEL)](./FigureCopyDir/GO_UniProt/5.Combined_GO/sequence_distribution_cellular_component_20220308_191520.png) 
 
-
+\newpage
 
 ***
 
-\newpage
 
 ## Summary 
 
@@ -2649,7 +2646,7 @@ setwd("~/@Uni/@Flinders University PhD/RWorkingDir/R-kallisto-clstr-6&7")
 #View(Kcaught)
 ```
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 setwd("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown")
 ```
 
@@ -3126,8 +3123,8 @@ abline(h=median(logcounts_Sex),col=myPalette, legend=TRUE)
 
 ```{r, error=TRUE}
 # Data with actual counts, not TPM = "dge"
-head(dge_Sex)
-head(myTPM_Sex)
+#head(dge_Sex)
+#head(myTPM_Sex)
 ```
 
 Filter out genes with less than 5 reads in 2 samples for each transcript
@@ -3156,7 +3153,7 @@ topTags(results_Sex)
 Output the top 25 table of values based on calculated PValue
 ```{r, error=TRUE}
 tab_Sex <- topTags(results_Sex, n=25, sort.by = "PValue")
-head(tab_Sex)
+#head(tab_Sex)
 write.table(tab_Sex, file="Kgenelist-Top25_Sex.txt")
 ```
 
@@ -3176,8 +3173,8 @@ summary_Sex <- (de_Sex <- decideTests(results_Sex))
 write.table(summary_Sex, file="summary_Sex.txt")
 
 detags_Sex <- rownames(dge_Sex)[as.logical(de_Sex)]
-head(detags_Sex)
-head(results_Sex)
+#head(detags_Sex)
+#head(results_Sex)
 ```
 
 
@@ -3305,7 +3302,7 @@ setwd("~/@Uni/@Flinders University PhD/RWorkingDir/R-kallisto-clstr")
 #View(Kcaught)
 ```
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 setwd("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown")
 ```
 
@@ -3350,7 +3347,7 @@ myTPM_Season8 <- dge_Season8$counts
 # Which values in myCPM are greater than 0.5?
 thresh_Season8 <- myTPM_Season8 > 0.5
 # This produces a logical matrix with TRUEs and FALSEs
-head(thresh_Season8)
+#head(thresh_Season8)
 ```
 
 Insert colour pallate for following visualisations consistency
@@ -3431,15 +3428,15 @@ plotMDS(dge_Season8, col=myPalette8)
 
 ```{r, error=TRUE}
 # Data with actual counts, not TPM = "dge"
-head(dge_Season8)
-head(myTPM_Season8)
+#head(dge_Season8)
+#head(myTPM_Season8)
 ```
 
 filter out genes with less than 5 reads in 2 samples for each transcript
 ```{r, error=TRUE}
 filter_Season8 <- apply(dge_Season8, 1, function(x) length(x[x>5])>=2)
 filtered_Season8 <- dge_Season8[filter_Season8,]
-head(filtered_Season8)
+#head(filtered_Season8)
 ```
 
 Run calculations
@@ -3521,7 +3518,7 @@ dge_Sex8
 # Obtain Counts Per Million
 myTPM_Sex8 <- dge_Sex8$counts
 # Have a look at the output
-head(myTPM_Sex8)
+#head(myTPM_Sex8)
 ```
 
 \newpage
@@ -3531,7 +3528,7 @@ head(myTPM_Sex8)
 # Which values in myCPM are greater than 0.5?
 thresh_Sex8 <- myTPM_Sex8 > 0.5
 # This produces a logical matrix with TRUEs and FALSEs
-head(thresh_Sex8)
+#head(thresh_Sex8)
 ```
 
 Raw Counts per million and library sizes will be consistent with the Season comparison above. There is no need to plot them again however scripts are included to create separate R objects for downstream application.
@@ -3579,15 +3576,15 @@ abline(h=median(logcounts_Sex8),col=myPalette8, legend=TRUE)
 
 ```{r, error=TRUE}
 # Data with actual counts, not TPM = "dge"
-head(dge_Sex8)
-head(myTPM_Sex8)
+#head(dge_Sex8)
+#head(myTPM_Sex8)
 ```
 
 filter out genes with less than 5 reads in 2 samples for each transcript
 ```{r, error=TRUE}
 filter_Sex8 <- apply(dge_Sex8, 1, function(x) length(x[x>5])>=2)
 filtered_Sex8 <- dge_Sex8[filter_Sex8,]
-head(filtered_Sex8)
+#head(filtered_Sex8)
 ```
 
 Run calculations
@@ -3671,7 +3668,7 @@ setwd("~/@Uni/@Flinders University PhD/RWorkingDir/R-kallisto-clstr-4")
 #View(Kcaught4F)
 ```
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 setwd("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown")
 ```
 
@@ -3711,7 +3708,7 @@ myTPM_Season4F <- dge_Season4F$counts
 # Which values in myCPM are greater than 0.5?
 thresh_Season4F <- myTPM_Season4F > 0.5
 # This produces a logical matrix with TRUEs and FALSEs
-head(thresh_Season4F)
+#head(thresh_Season4F)
 ```
 
 Insert colour pallate for following visualisations consistency
@@ -3792,8 +3789,8 @@ plotMDS(dge_Season4F, col=myPalette4)
 
 ```{r, error=TRUE}
 # Data with actual counts, not TPM = "dge"
-head(dge_Season4F)
-head(myTPM_Season4F)
+#head(dge_Season4F)
+#head(myTPM_Season4F)
 ```
 
 filter out genes with less than 5 reads in 2 samples for each transcript

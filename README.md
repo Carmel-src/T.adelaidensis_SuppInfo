@@ -8,7 +8,7 @@ which outlines the full pipeline and links to the below script files in the cont
 
 ***
 
-The below folders contain the full script files linked to in each section of the above html walkthrough:
+The Folders in this repository contain the full script files organised per chapter, which are linked to in the relevant section of the above workflow (Appendix 2):
 
 ### [Thesis Chapter 3 Supplementary Information](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/tree/main/Chapter%203%20-%20Assembly)
 #### De-novo Assembly of Transcripts

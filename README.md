@@ -25,3 +25,6 @@ This section of the document outlines annotation of transcripts (and isoforms) o
 #### Gene Expression Analysis
 
 This section of the document outlines gene expression analysis conducted in Chapter 5, of the same short-read data presented in Chapter 3 supplementary information, however instead of using _de-novo_ assemblies, cleaned reads were directly aligned to the long read reference produced in chapters 3 and 4. Much of this analysis was then conducted in R Studio so this chapter especially, is best followed through the Appendix document.
+
+
+Most of the data analysis for Chapters 4 and 5 was conducted in R and is presented in the full workflow docuent, therefore there are fewer additional files in those folders here.

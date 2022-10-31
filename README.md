@@ -1,4 +1,5 @@
-# _T. adelaidensis_ Supplementary Information for Thesis Chapters 3, 4 & 5 - Included as Thesis Appendix #2
+# Transcript Annotation and Seasonal Gene Expression in Kidney Tissue of the Australian Pygmy Bluetongue Lizard, _Tiliqua adelaidensis_ 
+# Supplementary Information for Thesis Chapters 3, 4 & 5 - Included as Thesis Appendix #2
 
 This repository contains the analysis process used for transcript assembly, annotation, and gene expression in kidney tissue of the Australian pygmy bluetongue skink _Tiliqua adelaidensis_.  
 

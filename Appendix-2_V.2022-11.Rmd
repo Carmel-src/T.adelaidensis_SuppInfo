@@ -3145,7 +3145,8 @@ Excel is not ideal for the manipulation of lists of gene names this represents p
 Import the reference "genes of interest" list built from an NCBI database search (Created for reference in Chapter 4, outlined in Appendix 3). 
 [This imported list](https://github.com/Carmel-src/T.adelaidensis_SuppInfo/blob/main/Additional%20Supplementary%20Files/Returned%20organisms%202020-06-15%20Sauria-RM-dup-loc%20FULL.csv) is after initial duplicate filtering in excel as well as adding a column for gene sumbol/ID in all lower case. It contains 993 unique gene symbols for the most favoured taxa (as per the list in Appendix 3).
 ```{r, warning=FALSE, Message=FALSE, echo = TRUE}
-Sauria_2020.06.14 <- read.csv("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/Returned organisms 2020-06-15 Sauria-RM-dup-loc FULL.csv", sep = ",", header = TRUE)
+Sauria_2020.06.14 <- read.csv("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/Returned organisms 2020-06-15 Sauria-RM-dup-loc FULL.csv", sep = ",", header = TRUE,)
+Sauria_2020.06.14 <- Sauria_2020.06.14 %>% select("tax_id",	"Org_name.new_name",	"Org_name",	"GeneID",	"Symbol",	"Symbol.CAPS",	"Aliases",	"description",	"other_designations")
 nrow(Sauria_2020.06.14)
 head(Sauria_2020.06.14)
 ```

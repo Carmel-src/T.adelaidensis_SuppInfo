@@ -32,6 +32,7 @@ library(stringr)
 library(stringi)
 library(RColorBrewer)
 library(gplots)
+library(tinytex)
 ```
 
 ***
@@ -3636,14 +3637,14 @@ setwd("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown")
 Set the group factors. Input Sample files are listed in number order G1-G8 excluding G6 and G7.
 Group factors are applied to the DGElist object and are the point of comparison for expression analyses.
 
-#### Season of Collection: 1 = March, 2 = Sep. 
+*Season of Collection: 1 = September, 2 = March/April*
 For the purposes of consistent labelling per group factors some April collections are referred to in the March group. Accurate collection information and dates are outlined in the methods chapter.
             
-#### Individual Sex: 1 = Female, 2 = Male.  
+*Individual Sex: 1 = Female, 2 = Male*
 
 ```{r}
-#these factors correlate to season of collection. 1 = March, 2 = Sep.
-season_group<-factor(c(2,2,1,1,2,1))
+#these factors correlate to season of collection. 1 = September, 2 = March.
+season_group<-factor(c(1,1,2,2,1,2))
 
 #these factors correlate to individuals sex. 1 = Female, 2 = Male
 sex_group<-factor(c(1,1,1,2,2,1))
@@ -3795,9 +3796,9 @@ mypalette2 <- brewer.pal(11,"RdYlBu")
 morecols <- colorRampPalette(mypalette2)
 ```
 
-Colour vector for season_group factor variable: note - factor groups changed to match column reordering in highly_variable_lcpm March=1 September=2
+Colour vector for season_group factor variable: note - factor groups changed to match column reordering in highly_variable_lcpm September=1 March=2
 ```{r}
-Reordered_season_group<-factor(c(2,2,2,1,1,1))
+Reordered_season_group<-factor(c(1,1,1,2,2,2))
 col.cell_season <- c("chartreuse3","orange")[Reordered_season_group]
 ```
 
@@ -3847,9 +3848,9 @@ mypalette2 <- brewer.pal(11,"RdYlBu")
 morecols <- colorRampPalette(mypalette2)
 ```
 
-Colour vector for season_group factor variable: note - factor groups changed to match column reordering in low_variable_lcpm March=1 September=2
+Colour vector for season_group factor variable: note - factor groups changed to match column reordering in low_variable_lcpm September=1 March=2
 ```{r}
-Reordered_season_group<-factor(c(2,2,2,1,1,1))
+Reordered_season_group<-factor(c(1,1,1,2,2,2))
 col.cell_season <- c("chartreuse3","orange")[Reordered_season_group]
 ```
 
@@ -3987,7 +3988,7 @@ nrow(summary_Season.sort_UP_info)
 
 write.csv(summary_Season.sort_UP_info, "~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/summary_Season.sort_UP_info.csv", quote = FALSE, row.names = FALSE, col.names = TRUE) #write the file to a .csv
 ```
-(note: although there are 189 transcripts significantly upregulated, only 99 of these returned a BLASTx result for their corresponding putative coding region)  
+(note: although there are 25 transcripts significantly upregulated, only 19 of these returned a BLASTx result for their corresponding putative coding region)   
 
 Filter for Transcripts in this list which ALSO have information from the 'genes of interest' list
 ```{r, error=TRUE}
@@ -3997,7 +3998,7 @@ nrow(summary_Season.sort_UP_info.GOI)
 
 write.csv(summary_Season.sort_UP_info.GOI, "~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/summary_Season.sort_UP_info.GOI.csv", quote = FALSE, row.names = FALSE, col.names = TRUE) #write the file to a .csv
 ```
-(note: 7 of the 99 upregaulted transcripts that returned a BLASTx result, are represented in the 'genes of interest' list)
+(note: 1 of the 19 upregulated transcripts that returned a BLASTx result, are represented in the 'genes of interest' list)
 
 
 Do the same for the Seasonally deownregulated transcripts
@@ -4016,7 +4017,7 @@ nrow(summary_Season.sort_DOWN_info)
 
 write.csv(summary_Season.sort_DOWN_info, "~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/summary_Season.sort_DOWN_info.csv", quote = FALSE, row.names = FALSE, col.names = TRUE) #write the file to a .csv
 ```
-(note: although there are 25 transcripts significantly downregulated, only 19 of these returned a BLASTx result for their corresponding putative coding region)  
+(note: although there are 189 transcripts significantly downregulated, only 99 of these returned a BLASTx result for their corresponding putative coding region) 
 
 Filter for Transcripts in this list which ALSO have information from the 'genes of interest' list
 ```{r, error=TRUE}
@@ -4026,22 +4027,22 @@ nrow(summary_Season.sort_DOWN_info.GOI)
 
 write.csv(summary_Season.sort_DOWN_info.GOI, "~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown/ReferenceClusters/summary_Season.sort_DOWN_info.GOI.csv", quote = FALSE, row.names = FALSE, col.names = TRUE) #write the file to a .csv
 ```
-(note: 1 of the 19 downregaulted transcripts that returned a BLASTx result, are represented in the 'genes of interest' list)
+(note: 7 of the 99 downregulated transcripts that returned a BLASTx result, are represented in the 'genes of interest' list)
 
 
 \newpage
 
-Visualise the logged Fold Change against Average logged counts per million, in expression of transcripts between season 1 (March/April) and 2 (September) using plotsmear: red indicates PValue < 0.05
+Visualise the logged Fold Change against Average logged counts per million, in expression of transcripts between seasons using plotsmear: red indicates PValue < 0.05
 ```{r, error=TRUE}
 png("plotsmear_Season.png", width = 600)
 plotSmear(results_Season, de.tags=detags_Season)
 ```
 
-![Log Fold Change vs average Log counts per million for expression level comparing September to March season variables among six _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05.](./FigureCopyDir/6Samples/plotsmear_Season.png)
+![Log Fold Change vs average Log counts per million for expression level comparing March to September season variables among six _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05.](./FigureCopyDir/6Samples/plotsmear_Season.png)
 
 \newpage
 
-Visualise differential expression of transcripts between season 1 (March/April) and 2 (September) with negative Logged PValue against Logged Fold Change in expression: Red indicates a transcript with PValue < 0.05, and Log Fold change > 2
+Visualise differential expression of transcripts between season 1 (September) and 2 (March) with negative Logged PValue against Logged Fold Change in expression: Red indicates a transcript with PValue < 0.05, and Log Fold change > 2
 ```{r}
 volcanoData_Season <- cbind(results_Season$table$logFC, -log10(results_Season$table$PValue))
 colnames(volcanoData_Season) <- c("logFC", "negLogPval")
@@ -4053,7 +4054,7 @@ plot(volcanoData_Season, pch = 16, col = point.col_Season, cex = 0.5)
 #pch is shape 1-26 are vectors, cex is size
 ```
 
-![Negative Log of the p-value against Log Fold Change in expression level comparing September to March season variables among six _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05 and _also_ a log fold change >2.](./FigureCopyDir/6Samples/volcanoData_Season.png)
+![Negative Log of the p-value against Log Fold Change in expression level comparing March to September season variables among six _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05 and _also_ a log fold change >2.](./FigureCopyDir/6Samples/volcanoData_Season.png)
 
 
 
@@ -4326,14 +4327,14 @@ setwd("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown")
 Set the group factors. Input Sample files are listed G1-G8
 Group factors are applied to the DGElist object and are the point of comparison for expression analyses.
 
-#### Season of Collection: 1 = March, 2 = Sep. 
+*Season of Collection: 1 = September, 2 = March* 
 For the purposes of consistent labelling per group factors some April collections are referred to in the March group. Accurate collection information and dates are outlined in the methods chapter.
             
-#### Individual Sex: 1 = Female, 2 = Male.  
+*Individual Sex: 1 = Female, 2 = Male*  
 
 ```{r}
 #these factors correlate to season of collection. 1 = March, 2 = Sep.
-season8_group<-factor(c(2,2,1,1,2,2,1,1))
+season8_group<-factor(c(1,1,2,2,1,1,2,2))
 
 #these factors correlate to individuals sex. 1 = Female, 2 = Male
 sex8_group<-factor(c(1,1,1,2,2,2,1,1))
@@ -4505,7 +4506,7 @@ png("plotSmear_Season8.png", width = 600)
 plotSmear(results_Season8, de.tags=detags_Season8)
 ```
 
-![Log Fold Change vs average Log counts per million for expression level comparing Season 2 (September collection) to Season 1 (April/March collection) among eight _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05.](./FigureCopyDir/8Samples/plotSmear_Season8.png)
+![Log Fold Change vs average Log counts per million for expression level comparing March to September among eight _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05.](./FigureCopyDir/8Samples/plotSmear_Season8.png)
 
 \newpage
 
@@ -4520,7 +4521,7 @@ point.col_Season8 <- ifelse(DEGs_Season8, "red", "black")
 plot(volcanoData_Season8, pch = 16, col = point.col_Season8, cex = 0.5)
 ```
 
-![Negative Log of the p-value against Log Fold Change in expression level comparing Season 2 (September collection) to Season 1 (April/March collection) among eight _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05 and _also_ a log fold change >2.](./FigureCopyDir/8Samples/volcanoData_Season8.png)
+![Negative Log of the p-value against Log Fold Change in expression level comparing March to September among eight _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05 and _also_ a log fold change >2.](./FigureCopyDir/8Samples/volcanoData_Season8.png)
 
 
 ***
@@ -4707,14 +4708,14 @@ setwd("~/@Uni/@Flinders University PhD/RWorkingDir/Workflow-readthedown")
 Set the group factors. Input Sample files are listed G1-G8
 Group factors are applied to the DGElist object and are the point of comparison for expression analyses.
 
-#### Season of Collection: 1 = March, 2 = Sep. 
+*Season of Collection: 1 = September, 2 = March* 
 For the purposes of consistent labelling per group factors some April collections are referred to in the March group. Accurate collection information and dates are outlined in the methods chapter.
             
-#### Individual Sex: 1 = Female, 2 = Male.  
+*Individual Sex: 1 = Female, 2 = Male*  
 
 ```{r}
 #these factors correlate to season of collection. 1 = March, 2 = Sep.
-Season4F_group<-factor(c(2,2,1,1))
+Season4F_group<-factor(c(1,1,2,2))
 ```
 
 
@@ -4885,7 +4886,7 @@ png("plotSmear_Season4F.png", width = 600)
 plotSmear(results_Season4F, de.tags=detags_Season4F)
 ```
 
-![Log Fold Change vs average Log counts per million for expression level comparing Season 2 (September collection) to Season 1 (April/March collection) among four _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05.](./FigureCopyDir/4Samples/plotSmear_Season4F.png)
+![Log Fold Change vs average Log counts per million for expression level comparing March to September among four _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05.](./FigureCopyDir/4Samples/plotSmear_Season4F.png)
 
 \newpage
 
@@ -4900,6 +4901,6 @@ point.col_Season4F <- ifelse(DEGs_Season4F, "red", "black")
 plot(volcanoData_Season4F, pch = 16, col = point.col_Season4F, cex = 0.5)
 ```
 
-![Negative Log of the p-value against Log Fold Change in expression level comparing Season 2 (September collection) to Season 1 (April/March collection) among four _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05 and _also_ a log fold change >2.](./FigureCopyDir/4Samples/volcanoData_Season4F.png)
+![Negative Log of the p-value against Log Fold Change in expression level comparing March to September among four _T. adelaidensis_ individuals. Red dots indicate transcripts with a significant change over season, with p-values <0.05 and _also_ a log fold change >2.](./FigureCopyDir/4Samples/volcanoData_Season4F.png)
 
 ***

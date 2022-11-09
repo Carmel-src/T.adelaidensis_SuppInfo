@@ -1,0 +1,3 @@
+TranscriptID,Differential Expression Statistics,,,,BLASTx Statistics,,,,Genes of Interest Database Search,
+TranscriptID,Overdispersion,logFC,logCPM,PValue,UniprotID,Gene,pident,evalue,Org_name,description
+PB.6136.2|ea3739|path0:15-2762(+)|transcript/5251|m.11463,1.4376,4.7122,0.1626,0.000954543,P14154,gja1,86.935,1.66E-115,Gallus gallus,gap junction protein alpha 1 - Connexin 43

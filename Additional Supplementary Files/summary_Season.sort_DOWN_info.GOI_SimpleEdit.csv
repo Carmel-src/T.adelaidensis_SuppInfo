@@ -1,0 +1,9 @@
+TranscriptID,Differential Expression Statistics,,,,BLASTx Statistics,,,,Genes of Interest Database Search,
+TranscriptID,Overdispersion,logFC,logCPM,PValue,UniprotID,Gene,pident,evalue,Org_name,description
+PB.840.1|1eedc5|path0:1-2091(+)|transcript/11690|m.1514,1,-5.8894,3.5505,0.000197908,P09482,chrna4,87.961,0,Gallus gallus,cholinergic receptor nicotinic alpha 4 subunit
+PB.1055.1|295311|path2:1-1979(+)|transcript/12857|m.1877,1,-3.1329,1.6564,0.000285394,Q3SZM7,dpep1,68.564,0,Anolis carolinensis,dipeptidase 1
+PB.8897.1|transcript/3462:1-3118(+)|transcript/3462|m.14650,1.0627,-2.8663,4.1681,3.54E-07,Q5ZMN2,mcm3,81.863,0,Anser cygnoides domesticus,minichromosome maintenance complex component 3
+PB.8089.1|transcript/20489:1-1427(+)|transcript/20489|m.13880,1.1594,-4.0435,2.1771,6.18E-06,Q9Y619,slc25a15,60.853,3.80E-102,Anolis carolinensis,solute carrier family 25 member 15
+PB.2610.1|60c22a|path0:1-2155(+)|transcript/10675|m.4798,1.6866,-2.5602,2.5882,0.000819722,P53790,slc5a1,82.514,0,Pogona vitticeps,solute carrier family 5 member 1
+PB.2610.2|60c22a|path0:1-2499(+)|transcript/7260|m.4799,2.0509,-3.0467,2.1128,8.78E-05,P53790,slc5a1,78.681,0,Pogona vitticeps,solute carrier family 5 member 1
+PB.7443.1|transcript/15548:1-1797(+)|transcript/15548|m.13231,1.0329,-4.4239,2.7361,3.12E-07,P04047,tk1,82.063,8.12E-136,Gallus gallus,thymidine kinase 1
